@@ -3,8 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { productsAPI } from '../api/products';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-
-const API_BASE = '/api';
+import { API_BASE } from '../config';
 
 const ProductDetail = () => {
   const { id } = useParams();

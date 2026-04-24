@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
-const API_BASE = '/api';
+import { API_BASE } from '../config';
 
 const Register = () => {
   const [formData, setFormData] = useState({

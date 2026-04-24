@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-
-const API_BASE = '/api';
+import { API_BASE } from '../config';
 
 const Checkout = () => {
   const navigate = useNavigate();

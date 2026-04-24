@@ -2,8 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-
-const API_BASE = '/api';
+import { API_BASE } from '../config';
 
 const Navbar = () => {
   const { cartCount } = useCart();

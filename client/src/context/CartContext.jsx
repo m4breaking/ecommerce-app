@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { generateSessionId } from '../utils/session';
-
-const API_BASE = '/api';
+import { API_BASE } from '../config';
 
 const CartContext = createContext();
 

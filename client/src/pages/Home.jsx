@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { productsAPI } from '../api/products';
-
-const API_BASE = '/api';
+import { API_BASE } from '../config';
 
 const Home = () => {
   const [searchParams] = useSearchParams();
