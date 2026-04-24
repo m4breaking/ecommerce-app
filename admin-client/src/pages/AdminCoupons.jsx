@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { API_BASE } from '../config';
 
 const AdminCoupons = () => {
   const { admin, logout } = useAdminAuth();
@@ -31,7 +32,7 @@ const AdminCoupons = () => {
   const loadCoupons = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/coupons');
+      const response = await fetch(`${API_BASE}/coupons`);
       const data = await response.json();
       setCoupons(data);
     } catch (err) {

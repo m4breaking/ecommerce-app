@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { API_BASE } from '../config';
 
 const AdminOrders = () => {
   const { admin, logout } = useAdminAuth();
@@ -21,7 +22,7 @@ const AdminOrders = () => {
   const loadOrders = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/orders');
+      const response = await fetch(`${API_BASE}/orders`);
       const data = await response.json();
       setOrders(data);
     } catch (err) {

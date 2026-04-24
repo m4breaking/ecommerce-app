@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { API_BASE } from '../config';
 
 const AdminChat = () => {
   const { admin, logout } = useAdminAuth();
@@ -31,7 +32,7 @@ const AdminChat = () => {
   const loadSessions = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/chat/admin/sessions');
+      const response = await fetch(`${API_BASE}/chat/admin/sessions`);
       const data = await response.json();
       setSessions(data);
     } catch (err) {
@@ -61,7 +62,7 @@ const AdminChat = () => {
     if (!replyMessage.trim() || !selectedSession) return;
 
     try {
-      await fetch('/api/chat/admin/reply', {
+      await fetch(`${API_BASE}/chat/admin/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

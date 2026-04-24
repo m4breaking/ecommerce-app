@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { API_BASE } from '../config';
 
 const AdminAnalytics = () => {
   const { admin, logout } = useAdminAuth();
@@ -19,7 +20,7 @@ const AdminAnalytics = () => {
   const loadAnalytics = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/orders/analytics');
+      const response = await fetch(`${API_BASE}/orders/analytics`);
       const data = await response.json();
       setAnalytics(data);
     } catch (err) {

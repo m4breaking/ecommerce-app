@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { API_BASE } from '../config';
 
 const AdminUsers = () => {
   const { admin, logout } = useAdminAuth();
@@ -21,7 +22,7 @@ const AdminUsers = () => {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/users');
+      const response = await fetch(`${API_BASE}/users`);
       const data = await response.json();
       setUsers(data);
     } catch (err) {
@@ -33,7 +34,7 @@ const AdminUsers = () => {
 
   const loadStats = async () => {
     try {
-      const response = await fetch('/api/users/stats');
+      const response = await fetch(`${API_BASE}/users/stats`);
       const data = await response.json();
       setStats(data);
     } catch (err) {
