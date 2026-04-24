@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { API_BASE } from '../config';
 
 const LiveChat = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,7 +45,7 @@ const LiveChat = () => {
 
   const loadMessages = async () => {
     try {
-      const response = await fetch(`/api/chat/${sessionId}`);
+      const response = await fetch(`${API_BASE}/chat/${sessionId}`);
       const data = await response.json();
       setMessages(data);
     } catch (err) {
@@ -63,7 +64,7 @@ const LiveChat = () => {
     };
 
     try {
-      await fetch('/api/chat', {
+      await fetch(`${API_BASE}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newMessage)

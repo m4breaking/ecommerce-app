@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { productsAPI } from '../api/products';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE } from '../config';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -36,7 +37,7 @@ const ProductDetail = () => {
   };
 
   const checkIfInCart = () => {
-    fetch(`/api/cart/${sessionId}`)
+    fetch(`${API_BASE}/cart/${sessionId}`)
       .then(res => res.json())
       .then(items => {
         const cartItem = items.find(item => item.product_id === parseInt(id));
@@ -84,7 +85,7 @@ const ProductDetail = () => {
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/reviews', {
+      const res = await fetch(`${API_BASE}/reviews`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

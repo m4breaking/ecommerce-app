@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE } from '../config';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const Checkout = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    fetch(`/api/cart/${sessionId}`)
+    fetch(`${API_BASE}/cart/${sessionId}`)
       .then(res => res.json())
       .then(data => setCartItems(data))
       .catch(err => console.error('Error loading cart:', err));
@@ -45,7 +46,7 @@ const Checkout = () => {
     }
 
     try {
-      const response = await fetch('/api/coupons/validate', {
+      const response = await fetch(`${API_BASE}/coupons/validate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: couponCode, total })
@@ -119,7 +120,7 @@ const Checkout = () => {
         }))
       };
 
-      const response = await fetch('/api/orders', {
+      const response = await fetch(`${API_BASE}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)

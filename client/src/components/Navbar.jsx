@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE } from '../config';
 
 const Navbar = () => {
   const { cartCount } = useCart();
@@ -28,7 +29,7 @@ const Navbar = () => {
 
   useEffect(() => {
     // Load categories
-    fetch('/api/products')
+    fetch(`${API_BASE}/products`)
       .then(res => res.json())
       .then(data => {
         const uniqueCategories = [...new Set(data.map(p => p.category).filter(c => c))];

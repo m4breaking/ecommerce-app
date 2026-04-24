@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { generateSessionId } from '../utils/session';
+import { API_BASE } from '../config';
 
 const CartContext = createContext();
 
@@ -22,7 +23,7 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   const updateCartCount = () => {
-    fetch(`/api/cart/${sessionId}`)
+    fetch(`${API_BASE}/cart/${sessionId}`)
       .then(res => res.json())
       .then(items => {
         const count = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -32,7 +33,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const addToCart = (productId, quantity = 1) => {
-    fetch('/api/cart', {
+    fetch(`${API_BASE}/cart`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session_id: sessionId, product_id: productId, quantity })
@@ -43,13 +44,13 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = (itemId) => {
-    fetch(`/api/cart/${itemId}`, { method: 'DELETE' })
+    fetch(`${API_BASE}/cart/${itemId}`, { method: 'DELETE' })
       .then(() => updateCartCount())
       .catch(err => console.error('Error removing from cart:', err));
   };
 
   const updateCartItem = (itemId, quantity) => {
-    fetch(`/api/cart/${itemId}`, {
+    fetch(`${API_BASE}/cart/${itemId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ quantity })
@@ -59,7 +60,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const clearCart = () => {
-    fetch(`/api/cart/session/${sessionId}`, { method: 'DELETE' })
+    fetch(`${API_BASE}/cart/session/${sessionId}`, { method: 'DELETE' })
       .then(() => updateCartCount())
       .catch(err => console.error('Error clearing cart:', err));
   };
