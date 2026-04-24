@@ -20,8 +20,8 @@ export const AdminAuthProvider = ({ children }) => {
 
   const login = (email, password) => {
     // Mock admin authentication - in production, this would call an API
-    // For demo: emon@emon.com / billaless00
-    if (email === 'emon@emon.com' && password === 'billaless00') {
+    // For demo: m4breaking1@gmail.com / billaless00
+    if (email === 'm4breaking1@gmail.com' && password === 'billaless00') {
       const mockAdmin = {
         id: 1,
         email: email,
