@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+const API_BASE = 'https://ecommerce-app-8nbo.onrender.com/api';
+
 const Orders = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -19,7 +21,7 @@ const Orders = () => {
   const loadOrders = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/orders/user/${user.id}`);
+      const response = await fetch(`${API_BASE}/orders/user/${user.id}`);
       const data = await response.json();
       setOrders(data);
     } catch (err) {

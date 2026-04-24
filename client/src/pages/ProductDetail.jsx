@@ -56,8 +56,8 @@ const ProductDetail = () => {
   const loadReviews = async () => {
     try {
       const [reviewsRes, avgRes] = await Promise.all([
-        fetch(`/api/reviews/product/${id}`),
-        fetch(`/api/reviews/product/${id}/average`)
+        fetch(`${API_BASE}/reviews/product/${id}`),
+        fetch(`${API_BASE}/reviews/product/${id}/average`)
       ]);
       const reviewsData = await reviewsRes.json();
       const avgData = await avgRes.json();
@@ -72,7 +72,7 @@ const ProductDetail = () => {
   const checkUserReview = async () => {
     if (user) {
       try {
-        const res = await fetch(`/api/reviews/check?user_id=${user.id}&product_id=${id}`);
+        const res = await fetch(`${API_BASE}/reviews/check?user_id=${user.id}&product_id=${id}`);
         const data = await res.json();
         if (data.hasReviewed) {
           setUserReview(data.review);

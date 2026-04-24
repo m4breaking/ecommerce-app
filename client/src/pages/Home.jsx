@@ -75,7 +75,7 @@ const Home = () => {
       if (maxPrice) params.append('maxPrice', maxPrice);
       
       const queryString = params.toString();
-      const url = queryString ? `/api/products?${queryString}` : '/api/products';
+      const url = queryString ? `${API_BASE}/products?${queryString}` : `${API_BASE}/products`;
       
       const response = await fetch(url);
       const data = await response.json();

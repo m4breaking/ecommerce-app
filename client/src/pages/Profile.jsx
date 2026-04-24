@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+const API_BASE = 'https://ecommerce-app-8nbo.onrender.com/api';
+
 const Profile = () => {
   const { user, login, logout } = useAuth();
   const navigate = useNavigate();
@@ -36,7 +38,7 @@ const Profile = () => {
     setMessage('');
 
     try {
-      const response = await fetch(`/api/users/${user.id}`, {
+      const response = await fetch(`${API_BASE}/users/${user.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -82,7 +84,7 @@ const Profile = () => {
     }
 
     try {
-      const response = await fetch(`/api/users/${user.id}/password`, {
+      const response = await fetch(`${API_BASE}/users/${user.id}/password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

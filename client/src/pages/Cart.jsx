@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
+const API_BASE = 'https://ecommerce-app-8nbo.onrender.com/api';
+
 const Cart = () => {
   const navigate = useNavigate();
   const { sessionId, removeFromCart, updateCartItem, clearCart } = useCart();
@@ -15,7 +17,7 @@ const Cart = () => {
   const loadCart = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/cart/${sessionId}`);
+      const response = await fetch(`${API_BASE}/cart/${sessionId}`);
       const data = await response.json();
       setCartItems(data);
     } catch (err) {

@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
+const API_BASE = 'https://ecommerce-app-8nbo.onrender.com/api';
+
 const Wishlist = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -21,7 +23,7 @@ const Wishlist = () => {
   const loadWishlist = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/wishlist/user/${user.id}`);
+      const response = await fetch(`${API_BASE}/wishlist/user/${user.id}`);
       const data = await response.json();
       setWishlist(data);
     } catch (err) {
@@ -33,7 +35,7 @@ const Wishlist = () => {
 
   const removeFromWishlist = async (wishlistId) => {
     try {
-      await fetch(`/api/wishlist/${wishlistId}`, { method: 'DELETE' });
+      await fetch(`${API_BASE}/wishlist/${wishlistId}`, { method: 'DELETE' });
       loadWishlist();
     } catch (err) {
       console.error('Error removing from wishlist:', err);

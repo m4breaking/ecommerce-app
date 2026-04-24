@@ -135,7 +135,7 @@ const Checkout = () => {
 
       // Record coupon usage if coupon was applied
       if (appliedCoupon) {
-        await fetch(`/api/coupons/${appliedCoupon.id}/use`, { method: 'POST' });
+        await fetch(`${API_BASE}/coupons/${appliedCoupon.id}/use`, { method: 'POST' });
       }
 
       clearCart();
