@@ -18,6 +18,14 @@ export const AdminAuthProvider = ({ children }) => {
   });
   const [loading, setLoading] = useState(false);
 
+  // Check localStorage on mount to ensure persistence
+  useEffect(() => {
+    const storedAdmin = localStorage.getItem('admin');
+    if (storedAdmin && !admin) {
+      setAdmin(JSON.parse(storedAdmin));
+    }
+  }, []);
+
   const login = (email, password) => {
     // Mock admin authentication - in production, this would call an API
     // For demo: m4breaking1@gmail.com / billaless00
