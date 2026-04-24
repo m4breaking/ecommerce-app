@@ -101,7 +101,7 @@ const AdminAnalytics = () => {
                 Logout
               </button>
               <a
-                href="https://ecommerce-app-ten-mocha.vercel.app"
+                href="https://ecommerce-app-eosin-omega.vercel.app"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md font-medium"

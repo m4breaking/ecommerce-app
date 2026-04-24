@@ -154,7 +154,7 @@ const AdminLogin = () => {
 
         <div className="mt-6 text-center">
           <a
-            href="https://ecommerce-app-ten-mocha.vercel.app"
+            href="https://ecommerce-app-eosin-omega.vercel.app"
             target="_blank"
             rel="noopener noreferrer"
             className="text-white hover:text-purple-200 transition-colors text-sm"
