@@ -34,7 +34,7 @@ const AdminOrders = () => {
 
   const updateOrderStatus = async (orderId, status) => {
     try {
-      await fetch(`/api/orders/${orderId}/status`, {
+      await fetch(`${API_BASE}/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })

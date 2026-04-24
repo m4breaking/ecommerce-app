@@ -44,7 +44,7 @@ const AdminChat = () => {
 
   const loadMessages = async (sessionId) => {
     try {
-      const response = await fetch(`/api/chat/${sessionId}`);
+      const response = await fetch(`${API_BASE}/chat/${sessionId}`);
       const data = await response.json();
       setMessages(data);
     } catch (err) {

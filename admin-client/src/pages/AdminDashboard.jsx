@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { productsAPI } from '../api/products';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { API_BASE } from '../config';
 
 const AdminDashboard = () => {
   const { admin, logout } = useAdminAuth();
@@ -133,7 +134,7 @@ const AdminDashboard = () => {
       // Update each product's position
       await Promise.all(
         newProducts.map((product, index) =>
-          fetch(`/api/products/${product.id}/position`, {
+          fetch(`${API_BASE}/products/${product.id}/position`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ position: index })

@@ -45,7 +45,7 @@ const AdminCoupons = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = editingCoupon ? `/api/coupons/${editingCoupon.id}` : '/api/coupons';
+      const url = editingCoupon ? `${API_BASE}/coupons/${editingCoupon.id}` : `${API_BASE}/coupons`;
       const method = editingCoupon ? 'PUT' : 'POST';
       
       const response = await fetch(url, {
@@ -102,7 +102,7 @@ const AdminCoupons = () => {
     if (!confirm('Are you sure you want to delete this coupon?')) return;
     
     try {
-      await fetch(`/api/coupons/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE}/coupons/${id}`, { method: 'DELETE' });
       loadCoupons();
     } catch (err) {
       alert('Failed to delete coupon');
