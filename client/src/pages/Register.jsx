@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { API_BASE } from '../config';
+
+const API_BASE = 'https://ecommerce-app-8nbo.onrender.com/api';
 
 const Register = () => {
   const [formData, setFormData] = useState({
