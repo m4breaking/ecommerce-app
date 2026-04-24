@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { productsAPI } from '../api/products';
+import { API_BASE } from '../config';
 
 const Home = () => {
   const [searchParams] = useSearchParams();
@@ -31,7 +32,7 @@ const Home = () => {
       if (maxPrice) params.append('maxPrice', maxPrice);
       
       const queryString = params.toString();
-      const url = queryString ? `/api/products?${queryString}` : '/api/products';
+      const url = queryString ? `${API_BASE}/products?${queryString}` : `${API_BASE}/products`;
       
       fetch(url)
         .then(res => res.json())
