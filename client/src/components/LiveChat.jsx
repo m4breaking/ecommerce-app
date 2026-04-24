@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 const API_BASE = 'https://ecommerce-app-8nbo.onrender.com/api';
 
 const LiveChat = () => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
@@ -61,7 +63,9 @@ const LiveChat = () => {
     const newMessage = {
       session_id: sessionId,
       sender: 'customer',
-      message: message.trim()
+      message: message.trim(),
+      user_id: user?.id || null,
+      username: user?.name || null
     };
 
     try {

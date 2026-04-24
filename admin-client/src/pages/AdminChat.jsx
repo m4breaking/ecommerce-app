@@ -203,7 +203,10 @@ const AdminChat = () => {
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <p className="font-medium text-sm">Session {session.session_id.slice(-6)}</p>
+                          <p className="font-medium text-sm">
+                            {session.username ? session.username : `Session ${session.session_id.slice(-6)}`}
+                            {session.user_id && <span className="text-xs text-gray-500 ml-2">(ID: {session.user_id})</span>}
+                          </p>
                           <p className="text-xs text-gray-500 mt-1">
                             {new Date(session.last_message_time).toLocaleString()}
                           </p>

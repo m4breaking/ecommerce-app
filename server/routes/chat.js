@@ -9,16 +9,32 @@ db.run(`
     session_id TEXT NOT NULL,
     sender TEXT NOT NULL,
     message TEXT NOT NULL,
+    user_id INTEGER,
+    username TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `);
+
+// Add user_id and username columns if they don't exist (for existing databases)
+db.run(`ALTER TABLE chat_messages ADD COLUMN user_id INTEGER`, (err) => {
+  if (err && !err.message.includes('duplicate column name')) {
+    console.error('Error adding user_id column:', err.message);
+  }
+});
+db.run(`ALTER TABLE chat_messages ADD COLUMN username TEXT`, (err) => {
+  if (err && !err.message.includes('duplicate column name')) {
+    console.error('Error adding username column:', err.message);
+  }
+});
 
 // Get all active chat sessions (for admin) - must come before :sessionId
 router.get('/admin/sessions', (req, res) => {
   db.all(
     `SELECT DISTINCT session_id, 
             MAX(created_at) as last_message_time,
-            (SELECT message FROM chat_messages WHERE session_id = cm.session_id ORDER BY created_at DESC LIMIT 1) as last_message
+            (SELECT message FROM chat_messages WHERE session_id = cm.session_id ORDER BY created_at DESC LIMIT 1) as last_message,
+            (SELECT username FROM chat_messages WHERE session_id = cm.session_id AND username IS NOT NULL LIMIT 1) as username,
+            (SELECT user_id FROM chat_messages WHERE session_id = cm.session_id AND user_id IS NOT NULL LIMIT 1) as user_id
      FROM chat_messages cm
      GROUP BY session_id
      ORDER BY last_message_time DESC`,
@@ -57,7 +73,7 @@ router.post('/admin/reply', (req, res) => {
 
 // Send a message
 router.post('/', (req, res) => {
-  const { session_id, sender, message } = req.body;
+  const { session_id, sender, message, user_id, username } = req.body;
   
   if (!session_id || !sender || !message) {
     res.status(400).json({ error: 'Missing required fields' });
@@ -65,14 +81,14 @@ router.post('/', (req, res) => {
   }
 
   db.run(
-    'INSERT INTO chat_messages (session_id, sender, message) VALUES (?, ?, ?)',
-    [session_id, sender, message],
+    'INSERT INTO chat_messages (session_id, sender, message, user_id, username) VALUES (?, ?, ?, ?, ?)',
+    [session_id, sender, message, user_id || null, username || null],
     function(err) {
       if (err) {
         res.status(500).json({ error: err.message });
         return;
       }
-      res.json({ id: this.lastID, session_id, sender, message });
+      res.json({ id: this.lastID, session_id, sender, message, user_id, username });
     }
   );
 });
