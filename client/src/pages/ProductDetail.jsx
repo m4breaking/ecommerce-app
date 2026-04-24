@@ -4,7 +4,7 @@ import { productsAPI } from '../api/products';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
-const API_BASE = 'https://ecommerce-app-8nbo.onrender.com/api';
+const API_BASE = '/api';
 
 const ProductDetail = () => {
   const { id } = useParams();

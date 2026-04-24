@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
-const API_BASE = 'https://ecommerce-app-8nbo.onrender.com/api';
+const API_BASE = '/api';
 
 const Checkout = () => {
   const navigate = useNavigate();

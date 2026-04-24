@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { generateSessionId } from '../utils/session';
 
-const API_BASE = 'https://ecommerce-app-8nbo.onrender.com/api';
+const API_BASE = '/api';
 
 const CartContext = createContext();
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { productsAPI } from '../api/products';
 
-const API_BASE = 'https://ecommerce-app-8nbo.onrender.com/api';
+const API_BASE = '/api';
 
 const Home = () => {
   const [searchParams] = useSearchParams();

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-const API_BASE = 'https://ecommerce-app-8nbo.onrender.com/api';
+const API_BASE = '/api';
 
 const LiveChat = () => {
   const [isOpen, setIsOpen] = useState(false);
