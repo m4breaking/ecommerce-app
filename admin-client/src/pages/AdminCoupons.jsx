@@ -138,7 +138,7 @@ const AdminCoupons = () => {
               <Link to="/users" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md font-medium">Users</Link>
               <Link to="/chat" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md font-medium">Live Chat</Link>
               <button onClick={handleLogout} className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md font-medium">Logout</button>
-              <a href="http://localhost:3000" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md font-medium">View Store</a>
+              <a href="https://ecommerce-app-ten-mocha.vercel.app" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md font-medium">View Store</a>
             </div>
           </div>
         </div>

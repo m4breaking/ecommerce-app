@@ -12,6 +12,7 @@ const AdminChat = () => {
   const [replyMessage, setReplyMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const chatEndRef = useRef(null);
+  const pollingIntervalRef = useRef(null);
 
   useEffect(() => {
     if (!admin) {
@@ -24,6 +25,31 @@ const AdminChat = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Auto-refresh messages when a session is selected
+  useEffect(() => {
+    if (selectedSession) {
+      // Load messages immediately
+      loadMessages(selectedSession);
+      
+      // Set up polling every 3 seconds
+      pollingIntervalRef.current = setInterval(() => {
+        loadMessages(selectedSession);
+      }, 3000);
+    } else {
+      // Clear polling when no session is selected
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    }
+
+    // Cleanup on unmount or when session changes
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, [selectedSession]);
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -133,7 +159,9 @@ const AdminChat = () => {
                 Logout
               </button>
               <a
-                href="http://localhost:3000"
+                href="https://ecommerce-app-ten-mocha.vercel.app"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md font-medium"
               >
                 View Store

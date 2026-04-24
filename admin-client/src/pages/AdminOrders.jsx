@@ -114,11 +114,11 @@ const AdminOrders = () => {
               <button
                 onClick={handleLogout}
                 className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md font-medium"
-              >
-                Logout
-              </button>
+              />
               <a
-                href="http://localhost:3000"
+                href="https://ecommerce-app-ten-mocha.vercel.app"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md font-medium"
               >
                 View Store

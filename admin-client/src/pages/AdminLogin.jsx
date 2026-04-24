@@ -154,7 +154,9 @@ const AdminLogin = () => {
 
         <div className="mt-6 text-center">
           <a
-            href="http://localhost:3000"
+            href="https://ecommerce-app-ten-mocha.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-white hover:text-purple-200 transition-colors text-sm"
           >
             ← Back to Store
