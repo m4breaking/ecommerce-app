@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { API_BASE } from '../config';
+
+const API_BASE = 'https://ecommerce-app-8nbo.onrender.com/api';
 
 const AuthContext = createContext();
 
