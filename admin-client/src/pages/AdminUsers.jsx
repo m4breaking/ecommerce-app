@@ -84,12 +84,6 @@ const AdminUsers = () => {
                 Orders
               </Link>
               <Link
-                to="/coupons"
-                className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md font-medium"
-              >
-                Coupons
-              </Link>
-              <Link
                 to="/chat"
                 className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md font-medium"
               >

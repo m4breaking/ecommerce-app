@@ -5,7 +5,6 @@ import AdminChat from './pages/AdminChat';
 import AdminUsers from './pages/AdminUsers';
 import AdminOrders from './pages/AdminOrders';
 import AdminAnalytics from './pages/AdminAnalytics';
-import AdminCoupons from './pages/AdminCoupons';
 import { AdminAuthProvider } from './context/AdminAuthContext';
 
 function App() {
@@ -20,7 +19,6 @@ function App() {
           <Route path="/users" element={<AdminUsers />} />
           <Route path="/orders" element={<AdminOrders />} />
           <Route path="/analytics" element={<AdminAnalytics />} />
-          <Route path="/coupons" element={<AdminCoupons />} />
         </Routes>
       </Router>
     </AdminAuthProvider>

@@ -121,12 +121,6 @@ const AdminChat = () => {
                 Orders
               </Link>
               <Link
-                to="/coupons"
-                className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md font-medium"
-              >
-                Coupons
-              </Link>
-              <Link
                 to="/users"
                 className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md font-medium"
               >
