@@ -125,35 +125,35 @@ const Profile = () => {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">My Profile</h1>
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">My Profile</h1>
 
       {message && (
-        <div className={`mb-4 p-4 rounded-md ${messageType === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+        <div className={`mb-4 p-4 rounded-md ${messageType === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>
           {message}
         </div>
       )}
 
       {/* Profile Information */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Profile Information</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Profile Information</h2>
         <form onSubmit={handleProfileUpdate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({...formData, email: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
           </div>
@@ -168,37 +168,37 @@ const Profile = () => {
       </div>
 
       {/* Change Password */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Change Password</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Change Password</h2>
         <form onSubmit={handlePasswordChange} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Password</label>
             <input
               type="password"
               value={formData.currentPassword}
               onChange={(e) => setFormData({...formData, currentPassword: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Password</label>
             <input
               type="password"
               value={formData.newPassword}
               onChange={(e) => setFormData({...formData, newPassword: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               required
               minLength="6"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm New Password</label>
             <input
               type="password"
               value={formData.confirmPassword}
               onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               required
               minLength="6"
             />
@@ -214,8 +214,8 @@ const Profile = () => {
       </div>
 
       {/* Danger Zone */}
-      <div className="bg-white rounded-lg shadow-md p-6 border border-red-200">
-        <h2 className="text-xl font-semibold text-red-600 mb-4">Danger Zone</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-red-200 dark:border-red-800">
+        <h2 className="text-xl font-semibold text-red-600 dark:text-red-400 mb-4">Danger Zone</h2>
         <button
           onClick={handleLogout}
           className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"

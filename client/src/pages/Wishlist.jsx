@@ -63,11 +63,11 @@ const Wishlist = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">My Wishlist</h1>
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">My Wishlist</h1>
 
       {wishlist.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg shadow-md">
-          <p className="text-gray-600 mb-4">Your wishlist is empty.</p>
+        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+          <p className="text-gray-600 dark:text-gray-300 mb-4">Your wishlist is empty.</p>
           <Link
             to="/"
             className="inline-block bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700"
@@ -78,18 +78,18 @@ const Wishlist = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {wishlist.map((item) => (
-            <div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
+            <div key={item.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
               <img
                 src={item.image_url || 'https://via.placeholder.com/400'}
                 alt={item.name}
                 className="w-full h-48 object-cover"
               />
               <div className="p-4 flex-1 flex flex-col">
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">{item.name}</h2>
-                <p className="text-gray-600 text-sm mb-3 line-clamp-2 flex-1">{item.description}</p>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{item.name}</h2>
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-3 line-clamp-2 flex-1">{item.description}</p>
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-2xl font-bold text-indigo-600">${item.price.toFixed(2)}</span>
-                  <span className="text-sm text-gray-500">Stock: {item.stock}</span>
+                  <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">${item.price.toFixed(2)}</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Stock: {item.stock}</span>
                 </div>
                 <div className="space-y-2">
                   <button
@@ -101,7 +101,7 @@ const Wishlist = () => {
                   </button>
                   <button
                     onClick={() => removeFromWishlist(item.id)}
-                    className="w-full bg-red-100 text-red-600 py-2 rounded-md hover:bg-red-200 transition-colors"
+                    className="w-full bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-200 py-2 rounded-md hover:bg-red-200 dark:hover:bg-red-800 transition-colors"
                   >
                     Remove
                   </button>
