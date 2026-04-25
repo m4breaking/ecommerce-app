@@ -104,29 +104,6 @@ router.post('/', (req, res) => {
         res.status(500).json({ error: err.message });
         return;
       }
-      
-      // Send automated welcome message if this is a customer's first message
-      if (sender === 'customer') {
-        db.get(
-          'SELECT COUNT(*) as count FROM chat_messages WHERE session_id = ? AND sender = ?',
-          [session_id, 'customer'],
-          (err, row) => {
-            if (!err && row.count === 1) {
-              // This is the first customer message, send automated reply
-              db.run(
-                'INSERT INTO chat_messages (session_id, sender, message) VALUES (?, ?, ?)',
-                [session_id, 'admin', 'Thanks for your message! An agent will be with you shortly.'],
-                (autoErr) => {
-                  if (autoErr) {
-                    console.error('Error sending automated message:', autoErr.message);
-                  }
-                }
-              );
-            }
-          }
-        );
-      }
-      
       res.json({ id: this.lastID, session_id, sender, message, user_id, username });
     }
   );
