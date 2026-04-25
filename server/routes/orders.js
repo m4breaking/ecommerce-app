@@ -128,7 +128,7 @@ router.post('/', (req, res) => {
 
       const orderId = this.lastID;
 
-      // Insert order items
+      // Insert order items and decrement stock
       const itemPromises = items.map(item => {
         return new Promise((resolve, reject) => {
           db.run(
@@ -137,7 +137,19 @@ router.post('/', (req, res) => {
             [orderId, item.product_id, item.name, item.quantity, item.price],
             (err) => {
               if (err) reject(err);
-              else resolve();
+              else {
+                // Decrement product stock
+                db.run(
+                  `UPDATE products SET stock = stock - ? WHERE id = ?`,
+                  [item.quantity, item.product_id],
+                  (stockErr) => {
+                    if (stockErr) {
+                      console.error('Error decrementing stock:', stockErr.message);
+                    }
+                    resolve();
+                  }
+                );
+              }
             }
           );
         });
