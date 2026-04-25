@@ -11,22 +11,12 @@ const Checkout = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [cartItems, setCartItems] = useState([]);
-  const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
-  const [discount, setDiscount] = useState(0);
-  const [couponError, setCouponError] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     address: '',
     email: '',
-    paymentMethod: 'cod',
-    cardNumber: '',
-    cardExpiry: '',
-    cardCvc: '',
-    bkashNumber: '',
-    bankAccount: '',
-    bankRouting: ''
+    paymentMethod: 'cod'
   });
   const [errors, setErrors] = useState({});
 
@@ -38,43 +28,6 @@ const Checkout = () => {
   }, [sessionId]);
 
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const finalTotal = Math.max(0, total - discount);
-
-  const applyCoupon = async () => {
-    if (!couponCode.trim()) {
-      setCouponError('Please enter a coupon code');
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_BASE}/coupons/validate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: couponCode, total })
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        setCouponError(data.error || 'Invalid coupon');
-        setAppliedCoupon(null);
-        setDiscount(0);
-      } else {
-        setAppliedCoupon(data);
-        setDiscount(data.discount);
-        setCouponError('');
-        setCouponCode('');
-      }
-    } catch (err) {
-      setCouponError('Failed to validate coupon');
-    }
-  };
-
-  const removeCoupon = () => {
-    setAppliedCoupon(null);
-    setDiscount(0);
-    setCouponCode('');
-    setCouponError('');
-  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -121,10 +74,6 @@ const Checkout = () => {
         throw new Error(data.error || 'Failed to create order');
       }
 
-      // Record coupon usage if coupon was applied
-      if (appliedCoupon) {
-        await fetch(`${API_BASE}/coupons/${appliedCoupon.id}/use`, { method: 'POST' });
-      }
 
       clearCart();
       navigate('/checkout-success');
@@ -364,66 +313,23 @@ const Checkout = () => {
               {cartItems.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm text-gray-900 dark:text-white">
                   <span>{item.name} x {item.quantity}</span>
-                  <span>${(item.price * item.quantity).toFixed(2)}</span>
+                  <span>৳{(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
             </div>
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
               <div className="flex justify-between text-gray-900 dark:text-white">
                 <span>Subtotal</span>
-                <span>${total.toFixed(2)}</span>
+                <span>৳{total.toFixed(2)}</span>
               </div>
-              {appliedCoupon && (
-                <div className="flex justify-between text-green-600">
-                  <span>Discount ({appliedCoupon.discount_type === 'percentage' ? appliedCoupon.discount_value + '%' : '$' + appliedCoupon.discount_value})</span>
-                  <span>-${discount.toFixed(2)}</span>
-                </div>
-              )}
               <div className="flex justify-between text-gray-900 dark:text-white">
                 <span>Shipping</span>
                 <span>Free</span>
               </div>
               <div className="flex justify-between font-semibold text-lg text-gray-900 dark:text-white">
                 <span>Total</span>
-                <span>${finalTotal.toFixed(2)}</span>
+                <span>৳{total.toFixed(2)}</span>
               </div>
-            </div>
-
-            {/* Coupon Section */}
-            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-              {!appliedCoupon ? (
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    placeholder="Enter coupon code"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
-                  />
-                  {couponError && (
-                    <p className="text-red-600 text-xs">{couponError}</p>
-                  )}
-                  <button
-                    onClick={applyCoupon}
-                    className="w-full bg-indigo-600 text-white py-2 rounded-md text-sm hover:bg-indigo-700"
-                  >
-                    Apply Coupon
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 p-3 rounded-md">
-                  <div>
-                    <p className="text-sm font-medium text-green-800 dark:text-green-400">Coupon Applied!</p>
-                    <p className="text-xs text-green-600 dark:text-green-300">{appliedCoupon.code}</p>
-                  </div>
-                  <button
-                    onClick={removeCoupon}
-                    className="text-red-600 dark:text-red-400 text-sm hover:text-red-800 dark:hover:text-red-300"
-                  >
-                    Remove
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </div>
