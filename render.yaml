@@ -3,9 +3,8 @@ services:
     name: ecommerce-api
     env: node
     plan: free
-    rootDirectory: server
-    buildCommand: npm install
-    startCommand: node server.js
+    buildCommand: cd server && npm install
+    startCommand: cd server && node server.js
     envVars:
       - key: PORT
         value: 10000
