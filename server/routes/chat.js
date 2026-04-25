@@ -2,56 +2,24 @@ const express = require('express');
 const router = express.Router();
 const db = require('../database');
 
-// Initialize chat table with proper error handling
-const initializeChatTable = () => {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS chat_messages (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      session_id TEXT NOT NULL,
-      sender TEXT NOT NULL,
-      message TEXT NOT NULL,
-      user_id INTEGER,
-      username TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `, (err) => {
-    if (err) {
-      console.error('Error creating chat_messages table:', err.message);
-    } else {
-      console.log('Chat messages table initialized successfully');
-      // Check if columns exist, add if not
-      db.all("PRAGMA table_info(chat_messages)", (err, columns) => {
-        if (!err) {
-          const hasUserId = columns.some(col => col.name === 'user_id');
-          const hasUsername = columns.some(col => col.name === 'username');
-          
-          if (!hasUserId) {
-            db.run(`ALTER TABLE chat_messages ADD COLUMN user_id INTEGER`, (err) => {
-              if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding user_id column:', err.message);
-              } else {
-                console.log('user_id column added');
-              }
-            });
-          }
-          
-          if (!hasUsername) {
-            db.run(`ALTER TABLE chat_messages ADD COLUMN username TEXT`, (err) => {
-              if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding username column:', err.message);
-              } else {
-                console.log('username column added');
-              }
-            });
-          }
-        }
-      });
-    }
-  });
-};
-
-// Initialize table when module loads
-initializeChatTable();
+// Simple table initialization
+db.run(`
+  CREATE TABLE IF NOT EXISTS chat_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT NOT NULL,
+    sender TEXT NOT NULL,
+    message TEXT NOT NULL,
+    user_id INTEGER,
+    username TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`, (err) => {
+  if (err) {
+    console.error('Error creating chat_messages table:', err.message);
+  } else {
+    console.log('Chat messages table initialized');
+  }
+});
 
 // Get all active chat sessions (for admin) - must come before :sessionId
 router.get('/admin/sessions', (req, res) => {
