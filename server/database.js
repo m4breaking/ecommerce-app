@@ -173,6 +173,47 @@ function initializeDatabase() {
       console.error('Error creating coupons table:', err.message);
     }
   });
+
+  // Create chat_messages table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS chat_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id TEXT NOT NULL,
+      username TEXT,
+      user_id INTEGER,
+      message TEXT NOT NULL,
+      is_admin INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `, (err) => {
+    if (err) {
+      console.error('Error creating chat_messages table:', err.message);
+    } else {
+      // Check if username column exists, add if not
+      db.all("PRAGMA table_info(chat_messages)", (err, columns) => {
+        if (!err) {
+          const hasUsername = columns.some(col => col.name === 'username');
+          const hasUserId = columns.some(col => col.name === 'user_id');
+          
+          if (!hasUsername) {
+            db.run(`ALTER TABLE chat_messages ADD COLUMN username TEXT`, (err) => {
+              if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding username column:', err.message);
+              }
+            });
+          }
+          
+          if (!hasUserId) {
+            db.run(`ALTER TABLE chat_messages ADD COLUMN user_id INTEGER`, (err) => {
+              if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding user_id column:', err.message);
+              }
+            });
+          }
+        }
+      });
+    }
+  });
 }
 
 function insertSampleProducts() {
