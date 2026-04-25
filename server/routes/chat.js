@@ -74,6 +74,7 @@ router.post('/', (req, res) => {
     return;
   }
 
+  // Insert the message
   db.run(
     'INSERT INTO chat_messages (session_id, sender, message, user_id, username) VALUES (?, ?, ?, ?, ?)',
     [session_id, sender, message, user_id || null, username || null],
@@ -82,6 +83,29 @@ router.post('/', (req, res) => {
         res.status(500).json({ error: err.message });
         return;
       }
+
+      // If this is a customer message, check if it's the first message for this session
+      if (sender === 'customer') {
+        db.get(
+          'SELECT COUNT(*) as count FROM chat_messages WHERE session_id = ? AND sender = ?',
+          [session_id, 'customer'],
+          (err, row) => {
+            if (!err && row.count === 1) {
+              // First customer message - send automated reply
+              db.run(
+                'INSERT INTO chat_messages (session_id, sender, message) VALUES (?, ?, ?)',
+                [session_id, 'admin', 'Thanks for your message! An agent will be with you shortly.'],
+                (autoErr) => {
+                  if (autoErr) {
+                    console.error('Error sending automated message:', autoErr.message);
+                  }
+                }
+              );
+            }
+          }
+        );
+      }
+
       res.json({ id: this.lastID, session_id, sender, message, user_id, username });
     }
   );
