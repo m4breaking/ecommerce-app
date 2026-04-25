@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-
-const API_BASE = 'https://ecommerce-app-8nbo.onrender.com/api';
+import { API_BASE } from '../config';
 
 const LiveChat = () => {
   const { user } = useAuth();
