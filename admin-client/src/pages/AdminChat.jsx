@@ -100,7 +100,7 @@ const AdminChat = () => {
       
       setReplyMessage('');
       loadMessages(selectedSession);
-      loadSessions();
+      // Don't reload sessions - polling will handle it
     } catch (err) {
       console.error('Error sending reply:', err);
     }
