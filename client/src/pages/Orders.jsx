@@ -34,17 +34,17 @@ const Orders = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
       case 'processing':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
       case 'shipped':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
       case 'delivered':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
       case 'cancelled':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
   };
 
@@ -67,7 +67,7 @@ const Orders = () => {
     if (status === 'cancelled') {
       return (
         <div className="flex items-center justify-center py-4">
-          <div className="bg-red-100 text-red-800 px-4 py-2 rounded-full font-medium">
+          <div className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 px-4 py-2 rounded-full font-medium">
             ❌ Order Cancelled
           </div>
         </div>
@@ -84,14 +84,14 @@ const Orders = () => {
             <div key={step.key} className="flex-1 flex flex-col items-center relative">
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center text-lg z-10 ${
-                  isCompleted ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'
+                  isCompleted ? 'bg-green-500 text-white' : 'bg-gray-200 dark:bg-gray-600 text-gray-400 dark:text-gray-300'
                 }`}
               >
                 {step.icon}
               </div>
               <span
                 className={`text-xs mt-2 font-medium ${
-                  isCurrent ? 'text-indigo-600' : isCompleted ? 'text-green-600' : 'text-gray-400'
+                  isCurrent ? 'text-indigo-600 dark:text-indigo-400' : isCompleted ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'
                 }`}
               >
                 {step.label}
@@ -99,7 +99,7 @@ const Orders = () => {
               {index < steps.length - 1 && (
                 <div
                   className={`absolute top-5 left-1/2 h-0.5 -translate-x-1/2 w-full ${
-                    index < currentStep ? 'bg-green-500' : 'bg-gray-200'
+                    index < currentStep ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-600'
                   }`}
                   style={{ width: 'calc(100% - 1rem)' }}
                 />
@@ -121,11 +121,11 @@ const Orders = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">My Orders</h1>
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">My Orders</h1>
 
       {orders.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg shadow-md">
-          <p className="text-gray-600 mb-4">You haven't placed any orders yet.</p>
+        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+          <p className="text-gray-600 dark:text-gray-300 mb-4">You haven't placed any orders yet.</p>
           <button
             onClick={() => navigate('/')}
             className="inline-block bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700"
@@ -136,11 +136,11 @@ const Orders = () => {
       ) : (
         <div className="space-y-6">
           {orders.map((order) => (
-            <div key={order.id} className="bg-white rounded-lg shadow-md p-6">
+            <div key={order.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Order #{order.id}</h3>
-                  <p className="text-sm text-gray-500">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Order #{order.id}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Placed on {new Date(order.created_at).toLocaleDateString()}
                   </p>
                 </div>
@@ -150,19 +150,19 @@ const Orders = () => {
               </div>
 
               {/* Order Status Timeline */}
-              <div className="mb-6 bg-gray-50 rounded-lg p-4">
+              <div className="mb-6 bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                 <OrderTimeline status={order.status} />
               </div>
 
-              <div className="border-t border-gray-200 pt-4">
-                <h4 className="font-medium text-gray-900 mb-3">Items</h4>
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <h4 className="font-medium text-gray-900 dark:text-white mb-3">Items</h4>
                 <div className="space-y-2">
                   {order.items.map((item, index) => (
                     <div key={index} className="flex justify-between text-sm">
-                      <span className="text-gray-600">
+                      <span className="text-gray-600 dark:text-gray-300">
                         {item.product_name} x {item.quantity}
                       </span>
-                      <span className="text-gray-900">
+                      <span className="text-gray-900 dark:text-white">
                         ${(item.price * item.quantity).toFixed(2)}
                       </span>
                     </div>
@@ -170,13 +170,13 @@ const Orders = () => {
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 mt-4 pt-4">
+              <div className="border-t border-gray-200 dark:border-gray-700 mt-4 pt-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-sm text-gray-600">Shipping to: {order.address}</p>
-                    <p className="text-sm text-gray-600">Payment: {order.payment_method.toUpperCase()}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Shipping to: {order.address}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Payment: {order.payment_method.toUpperCase()}</p>
                   </div>
-                  <p className="text-xl font-bold text-gray-900">
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">
                     Total: ${order.total_amount.toFixed(2)}
                   </p>
                 </div>
