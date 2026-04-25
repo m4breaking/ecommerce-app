@@ -42,10 +42,19 @@ function initializeDatabase() {
     if (err) {
       console.error('Error creating products table:', err.message);
     } else {
-      // Add position column if it doesn't exist (for existing databases)
-      db.run(`ALTER TABLE products ADD COLUMN position INTEGER DEFAULT 0`, (err) => {
-        if (err && !err.message.includes('duplicate column name')) {
-          console.error('Error adding position column:', err.message);
+      // Check if position column exists, add if not
+      db.all("PRAGMA table_info(products)", (err, columns) => {
+        if (!err) {
+          const hasPosition = columns.some(col => col.name === 'position');
+          if (!hasPosition) {
+            db.run(`ALTER TABLE products ADD COLUMN position INTEGER DEFAULT 0`, (err) => {
+              if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding position column:', err.message);
+              } else {
+                console.log('position column added to products');
+              }
+            });
+          }
         }
       });
       // Insert sample data if table is empty
@@ -186,56 +195,64 @@ function initializeDatabase() {
   });
 
   // Create chat_messages table
-  db.run(`
-    CREATE TABLE IF NOT EXISTS chat_messages (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      session_id TEXT NOT NULL,
-      username TEXT,
-      user_id INTEGER,
-      message TEXT NOT NULL,
-      is_admin INTEGER DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `, (err) => {
+  db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='chat_messages'", (err, row) => {
     if (err) {
-      console.error('Error creating chat_messages table:', err.message);
+      console.error('Error checking chat_messages table:', err.message);
+      return;
+    }
+
+    if (row) {
+      // Table exists, check columns
+      db.all("PRAGMA table_info(chat_messages)", (err, columns) => {
+        if (err) {
+          console.error('Error checking chat_messages columns:', err.message);
+          return;
+        }
+        
+        const hasUsername = columns.some(col => col.name === 'username');
+        const hasUserId = columns.some(col => col.name === 'user_id');
+        
+        if (!hasUsername) {
+          db.run(`ALTER TABLE chat_messages ADD COLUMN username TEXT`, (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+              console.error('Error adding username column:', err.message);
+            } else {
+              console.log('username column added to chat_messages');
+            }
+          });
+        }
+        
+        if (!hasUserId) {
+          db.run(`ALTER TABLE chat_messages ADD COLUMN user_id INTEGER`, (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+              console.error('Error adding user_id column:', err.message);
+            } else {
+              console.log('user_id column added to chat_messages');
+            }
+          });
+        }
+      });
     } else {
-      console.log('chat_messages table created or already exists');
+      // Table doesn't exist, create it with all columns
+      db.run(`
+        CREATE TABLE chat_messages (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          session_id TEXT NOT NULL,
+          username TEXT,
+          user_id INTEGER,
+          message TEXT NOT NULL,
+          is_admin INTEGER DEFAULT 0,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `, (err) => {
+        if (err) {
+          console.error('Error creating chat_messages table:', err.message);
+        } else {
+          console.log('chat_messages table created');
+        }
+      });
     }
   });
-
-  // After table creation, ensure columns exist
-  setTimeout(() => {
-    db.all("PRAGMA table_info(chat_messages)", (err, columns) => {
-      if (err) {
-        console.error('Error checking chat_messages columns:', err.message);
-        return;
-      }
-      
-      const hasUsername = columns.some(col => col.name === 'username');
-      const hasUserId = columns.some(col => col.name === 'user_id');
-      
-      if (!hasUsername) {
-        db.run(`ALTER TABLE chat_messages ADD COLUMN username TEXT`, (err) => {
-          if (err && !err.message.includes('duplicate column name')) {
-            console.error('Error adding username column:', err.message);
-          } else {
-            console.log('username column added to chat_messages');
-          }
-        });
-      }
-      
-      if (!hasUserId) {
-        db.run(`ALTER TABLE chat_messages ADD COLUMN user_id INTEGER`, (err) => {
-          if (err && !err.message.includes('duplicate column name')) {
-            console.error('Error adding user_id column:', err.message);
-          } else {
-            console.log('user_id column added to chat_messages');
-          }
-        });
-      }
-    });
-  }, 1000);
 }
 
 function insertSampleProducts() {
