@@ -6,7 +6,7 @@ try {
   API_BASE = localConfig.API_BASE;
   CLIENT_URL = localConfig.CLIENT_URL;
 } catch (e) {
-  API_BASE = 'https://ecommerce-app-8nbo.onrender.com/api';
+  API_BASE = 'https://ecommerce-app-v-0.onrender.com/api';
   CLIENT_URL = 'http://localhost:5173';
 }
 
