@@ -1,7 +1,10 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const dbPath = path.join(__dirname, 'ecommerce.db');
+// Use Render's persistent disk if available, otherwise local directory
+const dbPath = process.env.RENDER ? 
+  path.join('/opt/render/project/data', 'ecommerce.db') : 
+  path.join(__dirname, 'ecommerce.db');
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
