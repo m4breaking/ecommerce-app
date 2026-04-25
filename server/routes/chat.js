@@ -96,17 +96,68 @@ router.post('/', (req, res) => {
     return;
   }
 
-  db.run(
-    'INSERT INTO chat_messages (session_id, sender, message, user_id, username) VALUES (?, ?, ?, ?, ?)',
-    [session_id, sender, message, user_id || null, username || null],
-    function(err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
+  // Check if this is the first customer message for this session
+  if (sender === 'customer') {
+    db.get(
+      'SELECT COUNT(*) as count FROM chat_messages WHERE session_id = ? AND sender = ?',
+      [session_id, 'customer'],
+      (err, row) => {
+        if (err) {
+          // If check fails, proceed normally
+          insertMessage();
+        } else if (row.count === 0) {
+          // First message - insert customer message then automated reply
+          insertCustomerMessageWithAutoReply();
+        } else {
+          // Not first message - just insert normally
+          insertMessage();
+        }
       }
-      res.json({ id: this.lastID, session_id, sender, message, user_id, username });
-    }
-  );
+    );
+  } else {
+    // Admin message - just insert normally
+    insertMessage();
+  }
+
+  function insertMessage() {
+    db.run(
+      'INSERT INTO chat_messages (session_id, sender, message, user_id, username) VALUES (?, ?, ?, ?, ?)',
+      [session_id, sender, message, user_id || null, username || null],
+      function(err) {
+        if (err) {
+          res.status(500).json({ error: err.message });
+          return;
+        }
+        res.json({ id: this.lastID, session_id, sender, message, user_id, username });
+      }
+    );
+  }
+
+  function insertCustomerMessageWithAutoReply() {
+    db.run(
+      'INSERT INTO chat_messages (session_id, sender, message, user_id, username) VALUES (?, ?, ?, ?, ?)',
+      [session_id, sender, message, user_id || null, username || null],
+      function(err) {
+        if (err) {
+          res.status(500).json({ error: err.message });
+          return;
+        }
+        
+        // Insert automated reply
+        db.run(
+          'INSERT INTO chat_messages (session_id, sender, message) VALUES (?, ?, ?)',
+          [session_id, 'admin', 'Thanks for your message! An agent will be with you shortly.'],
+          (autoErr) => {
+            if (autoErr) {
+              console.error('Error sending automated message:', autoErr.message);
+            }
+            // Still return success even if auto message fails
+            res.json({ id: this.lastID, session_id, sender, message, user_id, username });
+          }
+        );
+      }
+    );
+  }
 });
 
 // Get messages for a session - must come after specific routes
