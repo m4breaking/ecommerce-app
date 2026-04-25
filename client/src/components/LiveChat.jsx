@@ -98,7 +98,7 @@ const LiveChat = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-96 h-[500px] bg-white rounded-lg shadow-2xl z-50 flex flex-col">
+        <div className="fixed bottom-6 right-6 w-96 h-[500px] bg-white dark:bg-gray-800 rounded-lg shadow-2xl z-50 flex flex-col">
           {/* Header */}
           <div className="bg-indigo-600 text-white p-4 rounded-t-lg flex justify-between items-center">
             <div>
@@ -118,7 +118,7 @@ const LiveChat = () => {
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {messages.length === 0 ? (
-              <div className="text-center text-gray-500 py-8">
+              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
                 <p>Start a conversation with us!</p>
               </div>
             ) : (
@@ -131,7 +131,7 @@ const LiveChat = () => {
                     className={`max-w-[80%] p-3 rounded-lg ${
                       msg.sender === 'customer'
                         ? 'bg-indigo-600 text-white'
-                        : 'bg-gray-200 text-gray-900'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
                     }`}
                   >
                     <p className="text-sm">{msg.message}</p>
@@ -149,14 +149,14 @@ const LiveChat = () => {
           </div>
 
           {/* Input */}
-          <form onSubmit={sendMessage} className="p-4 border-t">
+          <form onSubmit={sendMessage} className="p-4 border-t border-gray-200 dark:border-gray-700">
             <div className="flex space-x-2">
               <input
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Type your message..."
-                className="flex-1 border border-gray-300 rounded-md px-3 py-2"
+                className="flex-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md px-3 py-2"
               />
               <button
                 type="submit"
