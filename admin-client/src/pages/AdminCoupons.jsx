@@ -191,7 +191,7 @@ const AdminCoupons = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{coupon.code}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">{coupon.discount_type}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {coupon.discount_type === 'percentage' ? coupon.discount_value + '%' : '$' + coupon.discount_value}
+                      {coupon.discount_type === 'percentage' ? coupon.discount_value + '%' : '৳' + coupon.discount_value}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {coupon.used_count} / {coupon.usage_limit || '∞'}

@@ -188,7 +188,7 @@ const AdminOrders = () => {
                   <tr key={order.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white">#{order.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{order.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">${order.total_amount.toFixed(2)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">৳{order.total_amount.toFixed(2)}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
                         {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -293,7 +293,7 @@ const AdminOrders = () => {
                           <tr key={index}>
                             <td className="px-4 py-2 text-sm">{item.product_name}</td>
                             <td className="px-4 py-2 text-sm">{item.quantity}</td>
-                            <td className="px-4 py-2 text-sm text-right">${(item.price * item.quantity).toFixed(2)}</td>
+                            <td className="px-4 py-2 text-sm text-right">৳{(item.price * item.quantity).toFixed(2)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -304,7 +304,7 @@ const AdminOrders = () => {
                 <div className="flex justify-between items-center pt-4 border-t">
                   <p className="text-sm text-gray-500">Order Date</p>
                   <p className="text-xl font-bold text-gray-900">
-                    Total: ${selectedOrder.total_amount.toFixed(2)}
+                    Total: ৳{selectedOrder.total_amount.toFixed(2)}
                   </p>
                 </div>
               </div>

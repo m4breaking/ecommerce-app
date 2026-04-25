@@ -163,11 +163,11 @@ const AdminAnalytics = () => {
               </div>
               <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-6 border border-white/20">
                 <h3 className="text-sm font-medium text-purple-200 mb-2">Total Revenue</h3>
-                <p className="text-3xl font-bold text-white">${(analytics.overview?.total_revenue || 0).toFixed(2)}</p>
+                <p className="text-3xl font-bold text-white">৳{(analytics.overview?.total_revenue || 0).toFixed(2)}</p>
               </div>
               <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-6 border border-white/20">
                 <h3 className="text-sm font-medium text-purple-200 mb-2">Avg Order Value</h3>
-                <p className="text-3xl font-bold text-white">${(analytics.overview?.avg_order_value || 0).toFixed(2)}</p>
+                <p className="text-3xl font-bold text-white">৳{(analytics.overview?.avg_order_value || 0).toFixed(2)}</p>
               </div>
               <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-6 border border-white/20">
                 <h3 className="text-sm font-medium text-purple-200 mb-2">Pending Orders</h3>
@@ -222,7 +222,7 @@ const AdminAnalytics = () => {
                         <tr key={order.id}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-white">#{order.id}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{order.name}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white">${order.total_amount.toFixed(2)}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white">৳{order.total_amount.toFixed(2)}</td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
                               {order.status.charAt(0).toUpperCase() + order.status.slice(1)}

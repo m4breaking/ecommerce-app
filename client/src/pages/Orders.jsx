@@ -163,7 +163,7 @@ const Orders = () => {
                         {item.product_name} x {item.quantity}
                       </span>
                       <span className="text-gray-900 dark:text-white">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ৳{(item.price * item.quantity).toFixed(2)}
                       </span>
                     </div>
                   ))}
@@ -177,7 +177,7 @@ const Orders = () => {
                     <p className="text-sm text-gray-600 dark:text-gray-300">Payment: {order.payment_method.toUpperCase()}</p>
                   </div>
                   <p className="text-xl font-bold text-gray-900 dark:text-white">
-                    Total: ${order.total_amount.toFixed(2)}
+                    Total: ৳{order.total_amount.toFixed(2)}
                   </p>
                 </div>
               </div>

@@ -173,7 +173,7 @@ const ProductDetail = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">{product.name}</h1>
             <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm sm:text-base">{product.description}</p>
             <div className="mb-6">
-              <span className="text-3xl sm:text-4xl font-bold text-indigo-600 dark:text-indigo-400">${product.price.toFixed(2)}</span>
+              <span className="text-3xl sm:text-4xl font-bold text-indigo-600 dark:text-indigo-400">৳{product.price.toFixed(2)}</span>
             </div>
             <div className="mb-6">
               <span className={`text-sm ${product.stock > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
