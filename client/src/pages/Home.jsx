@@ -97,14 +97,14 @@ const Home = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-400"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center text-red-600 py-8">
+      <div className="text-center text-red-600 dark:text-red-400 py-8">
         {error}
       </div>
     );
@@ -112,7 +112,7 @@ const Home = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Our Products</h1>
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Our Products</h1>
       
       {/* Search Bar */}
       <div className="mb-4">
@@ -123,9 +123,9 @@ const Home = () => {
             onChange={handleSearchChange}
             onKeyDown={handleSearch}
             placeholder="Search products..."
-            className="w-full px-4 py-3 pl-12 border-2 border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm transition-all"
+            className="w-full px-4 py-3 pl-12 border-2 border-indigo-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-slate-800 shadow-sm transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
           />
-          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
@@ -135,14 +135,14 @@ const Home = () => {
       <div className="mb-4">
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center space-x-2 text-indigo-600 hover:text-indigo-800 font-medium"
+          className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium"
         >
           <svg className={`w-5 h-5 transition-transform ${showFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
           </svg>
           <span>Filters {showFilters ? '▼' : '▶'}</span>
           {(selectedCategory || minPrice || maxPrice) && (
-            <span className="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full">
+            <span className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 text-xs px-2 py-1 rounded-full">
               Active
             </span>
           )}
@@ -151,11 +151,11 @@ const Home = () => {
 
       {/* Filter Section */}
       {showFilters && (
-        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl shadow-lg p-6 mb-8 border border-indigo-100">
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-700 rounded-xl shadow-lg p-6 mb-8 border border-indigo-100 dark:border-slate-600">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                <svg className="w-4 h-4 mr-1 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                <svg className="w-4 h-4 mr-1 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                 </svg>
                 Category
@@ -163,7 +163,7 @@ const Home = () => {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-4 py-2.5 border-2 border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm transition-all"
+                className="w-full px-4 py-2.5 border-2 border-indigo-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-slate-800 shadow-sm transition-all text-gray-900 dark:text-white"
               >
                 <option value="">All Categories</option>
                 {categories.map((cat) => (
@@ -172,8 +172,8 @@ const Home = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                <svg className="w-4 h-4 mr-1 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                <svg className="w-4 h-4 mr-1 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Min Price
@@ -184,12 +184,12 @@ const Home = () => {
                 onChange={(e) => setMinPrice(e.target.value)}
                 placeholder="0"
                 min="0"
-                className="w-full px-4 py-2.5 border-2 border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm transition-all"
+                className="w-full px-4 py-2.5 border-2 border-indigo-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-slate-800 shadow-sm transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                <svg className="w-4 h-4 mr-1 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                <svg className="w-4 h-4 mr-1 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Max Price
@@ -200,14 +200,14 @@ const Home = () => {
                 onChange={(e) => setMaxPrice(e.target.value)}
                 placeholder="Any"
                 min="0"
-                className="w-full px-4 py-2.5 border-2 border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm transition-all"
+                className="w-full px-4 py-2.5 border-2 border-indigo-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-slate-800 shadow-sm transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               />
             </div>
           </div>
           {(selectedCategory || minPrice || maxPrice) && (
             <button
               onClick={clearFilters}
-              className="mt-4 flex items-center space-x-2 text-red-600 hover:text-red-800 font-medium transition-colors"
+              className="mt-4 flex items-center space-x-2 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -220,11 +220,11 @@ const Home = () => {
 
       {products.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
+          <p className="text-gray-500 dark:text-gray-400 text-lg">No products found matching your criteria.</p>
           {(searchTerm || selectedCategory || minPrice || maxPrice) && (
             <button
               onClick={clearFilters}
-              className="mt-4 text-indigo-600 hover:text-indigo-800"
+              className="mt-4 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
             >
               Clear Filters
             </button>
@@ -233,18 +233,18 @@ const Home = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {products.map((product) => (
-            <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
+            <div key={product.id} className="bg-white dark:bg-slate-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col border border-gray-200 dark:border-slate-700">
               <img
                 src={product.image_url || 'https://via.placeholder.com/400'}
                 alt={product.name}
                 className="w-full h-48 object-cover"
               />
               <div className="p-4 flex-1 flex flex-col">
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">{product.name}</h2>
-                <p className="text-gray-600 text-sm mb-3 line-clamp-2 flex-1">{product.description}</p>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{product.name}</h2>
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-3 line-clamp-2 flex-1">{product.description}</p>
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-2xl font-bold text-indigo-600">${product.price.toFixed(2)}</span>
-                  <span className="text-sm text-gray-500">Stock: {product.stock}</span>
+                  <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">${product.price.toFixed(2)}</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Stock: {product.stock}</span>
                 </div>
                 <Link
                   to={`/product/${product.id}`}

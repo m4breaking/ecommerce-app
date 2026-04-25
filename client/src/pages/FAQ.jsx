@@ -48,19 +48,19 @@ const FAQ = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">Frequently Asked Questions</h1>
-      <p className="text-gray-600 mb-8">Find answers to common questions about our products, services, and policies.</p>
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Frequently Asked Questions</h1>
+      <p className="text-gray-600 dark:text-gray-300 mb-8">Find answers to common questions about our products, services, and policies.</p>
 
       <div className="space-y-4">
         {faqs.map((faq, index) => (
-          <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div key={index} className="bg-white dark:bg-slate-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-slate-700">
             <button
               onClick={() => setOpenIndex(openIndex === index ? null : index)}
-              className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
+              className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
             >
-              <span className="font-medium text-gray-900">{faq.question}</span>
+              <span className="font-medium text-gray-900 dark:text-white">{faq.question}</span>
               <svg
-                className={`w-5 h-5 text-gray-500 transition-transform ${openIndex === index ? 'rotate-180' : ''}`}
+                className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform ${openIndex === index ? 'rotate-180' : ''}`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -69,17 +69,17 @@ const FAQ = () => {
               </svg>
             </button>
             {openIndex === index && (
-              <div className="px-6 py-4 bg-gray-50 border-t">
-                <p className="text-gray-600">{faq.answer}</p>
+              <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700 border-t border-gray-200 dark:border-slate-600">
+                <p className="text-gray-600 dark:text-gray-300">{faq.answer}</p>
               </div>
             )}
           </div>
         ))}
       </div>
 
-      <div className="mt-8 bg-indigo-50 rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Still have questions?</h2>
-        <p className="text-gray-600 mb-4">
+      <div className="mt-8 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-6 border border-indigo-100 dark:border-indigo-800">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Still have questions?</h2>
+        <p className="text-gray-600 dark:text-gray-300 mb-4">
           Can't find the answer you're looking for? Please contact our customer support team.
         </p>
         <div className="flex space-x-4">
@@ -94,7 +94,7 @@ const FAQ = () => {
               const chatButton = document.querySelector('button[class*="fixed bottom-6 right-6"]');
               if (chatButton) chatButton.click();
             }}
-            className="inline-block bg-white text-indigo-600 px-4 py-2 rounded-md border border-indigo-600 hover:bg-indigo-50"
+            className="inline-block bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 px-4 py-2 rounded-md border border-indigo-600 dark:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-slate-600"
           >
             Start Live Chat
           </button>

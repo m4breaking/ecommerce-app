@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AdminLogin from './pages/AdminLogin';
+import AdminHome from './pages/AdminHome';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminChat from './pages/AdminChat';
 import AdminUsers from './pages/AdminUsers';
@@ -14,6 +15,7 @@ function App() {
         <Routes>
           <Route path="/" element={<AdminLogin />} />
           <Route path="/login" element={<AdminLogin />} />
+          <Route path="/home" element={<AdminHome />} />
           <Route path="/dashboard" element={<AdminDashboard />} />
           <Route path="/chat" element={<AdminChat />} />
           <Route path="/users" element={<AdminUsers />} />
