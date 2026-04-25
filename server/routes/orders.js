@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
-const { sendOrderConfirmation, sendOrderStatusUpdate } = require('../services/emailService');
-const { sendOrderConfirmationSMS, sendOrderStatusUpdateSMS } = require('../services/smsService');
 
 // Get analytics data
 router.get('/analytics', (req, res) => {
@@ -159,10 +157,6 @@ router.post('/', (req, res) => {
 
       Promise.all(itemPromises)
         .then(() => {
-          // Send order confirmation email
-          sendOrderConfirmation(email, name, orderId, total_amount, items);
-          // Send order confirmation SMS
-          sendOrderConfirmationSMS(phone, name, orderId, total_amount);
           res.status(201).json({ order_id: orderId, message: 'Order created successfully' });
         })
         .catch((err) => {
@@ -271,10 +265,6 @@ router.patch('/:id/status', (req, res) => {
           return res.status(404).json({ error: 'Order not found' });
         }
 
-        // Send status update email
-        sendOrderStatusUpdate(order.email, order.name, order.id, status);
-        // Send status update SMS
-        sendOrderStatusUpdateSMS(order.phone, order.name, order.id, status);
         res.json({ message: 'Order status updated successfully' });
       }
     );
