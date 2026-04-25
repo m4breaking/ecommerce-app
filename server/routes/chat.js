@@ -13,17 +13,33 @@ db.run(`
     username TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
-`);
-
-// Add user_id and username columns if they don't exist (for existing databases)
-db.run(`ALTER TABLE chat_messages ADD COLUMN user_id INTEGER`, (err) => {
-  if (err && !err.message.includes('duplicate column name')) {
-    console.error('Error adding user_id column:', err.message);
-  }
-});
-db.run(`ALTER TABLE chat_messages ADD COLUMN username TEXT`, (err) => {
-  if (err && !err.message.includes('duplicate column name')) {
-    console.error('Error adding username column:', err.message);
+`, (err) => {
+  if (err) {
+    console.error('Error creating chat_messages table:', err.message);
+  } else {
+    // Check if columns exist, add if not
+    db.all("PRAGMA table_info(chat_messages)", (err, columns) => {
+      if (!err) {
+        const hasUserId = columns.some(col => col.name === 'user_id');
+        const hasUsername = columns.some(col => col.name === 'username');
+        
+        if (!hasUserId) {
+          db.run(`ALTER TABLE chat_messages ADD COLUMN user_id INTEGER`, (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+              console.error('Error adding user_id column:', err.message);
+            }
+          });
+        }
+        
+        if (!hasUsername) {
+          db.run(`ALTER TABLE chat_messages ADD COLUMN username TEXT`, (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+              console.error('Error adding username column:', err.message);
+            }
+          });
+        }
+      }
+    });
   }
 });
 
