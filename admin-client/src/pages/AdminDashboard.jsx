@@ -160,7 +160,8 @@ const AdminDashboard = () => {
         )
       );
       
-      setProducts(updatedProducts);
+      // Reload products from database to ensure correct state
+      await loadProducts();
     } catch (err) {
       console.error('Error updating positions:', err);
     }
