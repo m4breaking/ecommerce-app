@@ -6,7 +6,7 @@ const ChatContext = createContext(null);
 export const ChatProvider = ({ children }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [sessionId] = useState(() => localStorage.getItem('chatSessionId') || Date.now().toString());
-  const [lastMessageCount, setLastMessageCount] = useState(0);
+  const [lastReadTime, setLastReadTime] = useState(() => localStorage.getItem('lastReadTime') || null);
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
@@ -29,13 +29,17 @@ export const ChatProvider = ({ children }) => {
       const data = await response.json();
       setMessages(data);
       
-      // Check for new admin messages
-      if (data.length > lastMessageCount) {
-        const newMessages = data.slice(lastMessageCount);
-        const adminMessages = newMessages.filter(msg => msg.sender === 'admin');
-        setUnreadCount(prev => prev + adminMessages.length);
+      // Count unread admin messages (messages after last read time)
+      if (lastReadTime) {
+        const unreadAdminMessages = data.filter(
+          msg => msg.sender === 'admin' && new Date(msg.created_at) > new Date(lastReadTime)
+        );
+        setUnreadCount(unreadAdminMessages.length);
+      } else {
+        // If no last read time, count all admin messages as unread
+        const adminMessages = data.filter(msg => msg.sender === 'admin');
+        setUnreadCount(adminMessages.length);
       }
-      setLastMessageCount(data.length);
     } catch (err) {
       console.error('Error loading messages:', err);
     }
@@ -43,6 +47,8 @@ export const ChatProvider = ({ children }) => {
 
   const resetUnreadCount = () => {
     setUnreadCount(0);
+    setLastReadTime(new Date().toISOString());
+    localStorage.setItem('lastReadTime', new Date().toISOString());
   };
 
   return (
