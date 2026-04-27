@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useState } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import LiveChat from './components/LiveChat';
@@ -22,8 +21,6 @@ import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 
 function App() {
-  const [isChatOpen, setIsChatOpen] = useState(false);
-
   return (
     <ThemeProvider>
       <AuthProvider>
@@ -50,7 +47,7 @@ function App() {
                 </Routes>
               </main>
               <Footer />
-              <LiveChat isOpen={isChatOpen} onToggle={() => setIsChatOpen(!isChatOpen)} />
+              <LiveChat />
             </div>
           </Router>
         </CartProvider>
