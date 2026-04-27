@@ -13,42 +13,12 @@ if (!fs.existsSync(dbDir)) {
 }
 
 const dbPath = path.join(dbDir, 'ecommerce.db');
-const backupPath = path.join(dbDir, 'ecommerce_backup.db');
-
-// Create backup if database exists
-if (fs.existsSync(dbPath) && !fs.existsSync(backupPath)) {
-  try {
-    fs.copyFileSync(dbPath, backupPath);
-    console.log('Database backup created');
-  } catch (err) {
-    console.error('Error creating database backup:', err.message);
-  }
-}
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Error opening database:', err.message);
-    // Try to restore from backup if main database is corrupted
-    if (fs.existsSync(backupPath)) {
-      console.log('Attempting to restore from backup...');
-      try {
-        fs.copyFileSync(backupPath, dbPath);
-        console.log('Database restored from backup');
-        // Retry opening database
-        const retryDb = new sqlite3.Database(dbPath, (retryErr) => {
-          if (retryErr) {
-            console.error('Failed to open database even after restore:', retryErr.message);
-          } else {
-            console.log('Connected to SQLite database (restored)');
-            initializeDatabase();
-          }
-        });
-      } catch (restoreErr) {
-        console.error('Error restoring from backup:', restoreErr.message);
-      }
-    }
   } else {
-    console.log('Connected to SQLite database');
+    console.log('Connected to SQLite database at:', dbPath);
     initializeDatabase();
   }
 });
