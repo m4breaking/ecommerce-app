@@ -10,6 +10,10 @@ const AdminUsers = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterRole, setFilterRole] = useState('all');
 
   useEffect(() => {
     if (!admin) {
@@ -51,6 +55,30 @@ const AdminUsers = () => {
   const handleLogoutClick = () => {
     setShowLogoutConfirm(true);
   };
+
+  const handleViewUser = (user) => {
+    setSelectedUser(user);
+    setShowUserModal(true);
+  };
+
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    
+    try {
+      await fetch(`${API_BASE}/users/${userId}`, { method: 'DELETE' });
+      loadUsers();
+      loadStats();
+    } catch (err) {
+      console.error('Error deleting user:', err);
+    }
+  };
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = filterRole === 'all' || (user.role || 'user') === filterRole;
+    return matchesSearch && matchesRole;
+  });
 
   if (loading) {
     return (
@@ -144,6 +172,28 @@ const AdminUsers = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-bold text-white mb-8">User Management</h1>
 
+        {/* Search and Filter */}
+        <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-4 mb-6 border border-white/20">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <input
+              type="text"
+              placeholder="Search by name or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 px-4 py-2 rounded-md bg-white/20 text-white placeholder-purple-300 border border-white/30 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <select
+              value={filterRole}
+              onChange={(e) => setFilterRole(e.target.value)}
+              className="px-4 py-2 rounded-md bg-white/20 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="all">All Roles</option>
+              <option value="user">Users</option>
+              <option value="admin">Admins</option>
+            </select>
+          </div>
+        </div>
+
         {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -198,10 +248,11 @@ const AdminUsers = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Email</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Role</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Created At</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white/10 divide-y divide-white/20">
-              {users.map((user) => (
+              {filteredUsers.map((user) => (
                 <tr key={user.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{user.id}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{user.name}</td>
@@ -210,12 +261,67 @@ const AdminUsers = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-200">
                     {new Date(user.created_at).toLocaleDateString()}
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                    <button
+                      onClick={() => handleViewUser(user)}
+                      className="text-indigo-400 hover:text-indigo-300 mr-3"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={() => handleDeleteUser(user.id)}
+                      className="text-red-400 hover:text-red-300"
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* User Details Modal */}
+      {showUserModal && selectedUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 max-w-md w-full mx-4 border border-white/20">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-white">User Details</h3>
+              <button
+                onClick={() => setShowUserModal(false)}
+                className="text-white hover:text-purple-200"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <p className="text-sm text-purple-200">ID</p>
+                <p className="text-white">{selectedUser.id}</p>
+              </div>
+              <div>
+                <p className="text-sm text-purple-200">Name</p>
+                <p className="text-white">{selectedUser.name}</p>
+              </div>
+              <div>
+                <p className="text-sm text-purple-200">Email</p>
+                <p className="text-white">{selectedUser.email}</p>
+              </div>
+              <div>
+                <p className="text-sm text-purple-200">Role</p>
+                <p className="text-white">{selectedUser.role || 'user'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-purple-200">Created At</p>
+                <p className="text-white">{new Date(selectedUser.created_at).toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
