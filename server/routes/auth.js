@@ -5,21 +5,21 @@ const bcrypt = require('bcrypt');
 
 // Register a new user
 router.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, phone, password } = req.body;
   
-  if (!name || !email || !password) {
-    return res.status(400).json({ error: 'All fields are required' });
+  if (!name || !phone || !password) {
+    return res.status(400).json({ error: 'Name, phone, and password are required' });
   }
 
   try {
-    // Check if user already exists
-    db.get('SELECT id FROM users WHERE email = ?', [email], async (err, row) => {
+    // Check if user already exists by phone or email
+    db.get('SELECT id FROM users WHERE phone = ? OR (email = ? AND email IS NOT NULL)', [phone, email], async (err, row) => {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
       
       if (row) {
-        return res.status(400).json({ error: 'Email already registered' });
+        return res.status(400).json({ error: 'Phone or email already registered' });
       }
 
       // Hash password
@@ -27,8 +27,8 @@ router.post('/register', async (req, res) => {
 
       // Insert new user
       db.run(
-        'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-        [name, email, hashedPassword],
+        'INSERT INTO users (name, email, phone, password) VALUES (?, ?, ?, ?)',
+        [name, email || null, phone, hashedPassword],
         function(err) {
           if (err) {
             return res.status(500).json({ error: err.message });
@@ -37,7 +37,8 @@ router.post('/register', async (req, res) => {
           res.status(201).json({
             id: this.lastID,
             name,
-            email
+            email,
+            phone
           });
         }
       );
@@ -49,13 +50,15 @@ router.post('/register', async (req, res) => {
 
 // Login user
 router.post('/login', (req, res) => {
-  const { email, password } = req.body;
+  const { email, phone, password } = req.body;
   
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required' });
+  if ((!email && !phone) || !password) {
+    return res.status(400).json({ error: 'Email or phone and password are required' });
   }
 
-  db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
+  const identifier = email || phone;
+  
+  db.get('SELECT * FROM users WHERE email = ? OR phone = ?', [identifier, identifier], async (err, user) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -74,7 +77,8 @@ router.post('/login', (req, res) => {
       res.json({
         id: user.id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        phone: user.phone
       });
     } catch (err) {
       res.status(500).json({ error: 'Server error' });

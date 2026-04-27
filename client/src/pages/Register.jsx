@@ -8,6 +8,7 @@ const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: ''
   });
@@ -27,8 +28,13 @@ const Register = () => {
     e.preventDefault();
     setError('');
 
-    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
-      setError('Please fill in all fields');
+    if (!formData.name || !formData.phone || !formData.password || !formData.confirmPassword) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
+    if (formData.email && !formData.email.includes('@')) {
+      setError('Please enter a valid email address');
       return;
     }
 
@@ -50,7 +56,8 @@ const Register = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
-          email: formData.email,
+          email: formData.email || null,
+          phone: formData.phone,
           password: formData.password
         })
       });
@@ -106,7 +113,7 @@ const Register = () => {
             <div className="space-y-4">
               <div>
                 <label htmlFor="name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Full Name
+                  Full Name *
                 </label>
                 <input
                   id="name"
@@ -121,24 +128,39 @@ const Register = () => {
                 />
               </div>
               <div>
+                <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Phone Number *
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  required
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  placeholder="Enter your phone number"
+                />
+              </div>
+              <div>
                 <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Email Address
+                  Email Address (Optional)
                 </label>
                 <input
                   id="email"
                   name="email"
                   type="email"
                   autoComplete="email"
-                  required
                   value={formData.email}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="Enter your email"
+                  placeholder="Enter your email (optional)"
                 />
               </div>
               <div>
                 <label htmlFor="password" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Password
+                  Password *
                 </label>
                 <input
                   id="password"
@@ -154,7 +176,7 @@ const Register = () => {
               </div>
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Confirm Password
+                  Confirm Password *
                 </label>
                 <input
                   id="confirmPassword"

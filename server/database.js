@@ -88,13 +88,32 @@ function initializeDatabase() {
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      email TEXT NOT NULL UNIQUE,
+      email TEXT,
+      phone TEXT NOT NULL,
       password TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(email),
+      UNIQUE(phone)
     )
   `, (err) => {
     if (err) {
       console.error('Error creating users table:', err.message);
+    } else {
+      // Check if phone column exists, add if not
+      db.all("PRAGMA table_info(users)", (err, columns) => {
+        if (!err) {
+          const hasPhone = columns.some(col => col.name === 'phone');
+          if (!hasPhone) {
+            db.run(`ALTER TABLE users ADD COLUMN phone TEXT`, (err) => {
+              if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding phone column:', err.message);
+              } else {
+                console.log('phone column added to users');
+              }
+            });
+          }
+        }
+      });
     }
   });
 
