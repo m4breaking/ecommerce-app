@@ -57,10 +57,13 @@ function initializeDatabase() {
           }
         }
       });
-      // Insert sample data if table is empty
+      // Only insert sample data if table is empty - DO NOT overwrite existing data
       db.get('SELECT COUNT(*) as count FROM products', (err, row) => {
         if (!err && row.count === 0) {
+          console.log('Products table is empty, inserting sample data');
           insertSampleProducts();
+        } else if (!err) {
+          console.log(`Products table has ${row.count} existing products, skipping sample data insertion`);
         }
       });
     }

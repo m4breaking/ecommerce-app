@@ -98,6 +98,7 @@ const AdminChat = () => {
       // Clear polling when no session is selected
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
       }
     }
 
@@ -105,6 +106,7 @@ const AdminChat = () => {
     return () => {
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
       }
     };
   }, [selectedSession]);
@@ -115,14 +117,11 @@ const AdminChat = () => {
 
   const loadSessions = async () => {
     try {
-      setLoading(true);
       const response = await fetch(`${API_BASE}/chat/admin/sessions`);
       const data = await response.json();
       setSessions(data);
     } catch (err) {
       console.error('Error loading sessions:', err);
-    } finally {
-      setLoading(false);
     }
   };
 

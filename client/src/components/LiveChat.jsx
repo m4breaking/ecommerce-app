@@ -1,74 +1,34 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useChat } from '../context/ChatContext';
 import { API_BASE } from '../config';
 
-const LiveChat = () => {
+const LiveChat = ({ isOpen: propIsOpen, onToggle }) => {
   const { user } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
+  const { unreadCount, resetUnreadCount, sessionId: contextSessionId } = useChat();
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
-  const [sessionId] = useState(() => localStorage.getItem('chatSessionId') || Date.now().toString());
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [lastMessageCount, setLastMessageCount] = useState(0);
+  const sessionId = contextSessionId;
   const chatEndRef = useRef(null);
-  const pollingIntervalRef = useRef(null);
-
-  // Request notification permission
-  useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('chatSessionId', sessionId);
-    loadMessages();
-  }, [sessionId]);
+  const isOpen = propIsOpen !== undefined ? propIsOpen : false;
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  // Check for new messages and update unread count
-  useEffect(() => {
-    if (messages.length > lastMessageCount && !isOpen) {
-      const newMessages = messages.slice(lastMessageCount);
-      const adminMessages = newMessages.filter(msg => msg.sender === 'admin');
-      setUnreadCount(prev => prev + adminMessages.length);
-      
-      // Show browser notification for new admin messages
-      adminMessages.forEach(msg => {
-        if ('Notification' in window && Notification.permission === 'granted') {
-          new Notification('New Message from Admin', {
-            body: msg.message,
-            icon: '/favicon.ico'
-          });
-        }
-      });
-    }
-    setLastMessageCount(messages.length);
-  }, [messages, lastMessageCount, isOpen]);
-
   // Reset unread count when chat is opened
   useEffect(() => {
     if (isOpen) {
-      setUnreadCount(0);
+      resetUnreadCount();
     }
-  }, [isOpen]);
+  }, [isOpen, resetUnreadCount]);
 
-  // Poll for new messages (both when open and closed)
+  // Load messages when chat is opened
   useEffect(() => {
-    loadMessages();
-    pollingIntervalRef.current = setInterval(() => {
+    if (isOpen) {
       loadMessages();
-    }, 3000); // Poll every 3 seconds
-
-    return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-      }
-    };
-  }, [sessionId]);
+    }
+  }, [isOpen, sessionId]);
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -116,7 +76,7 @@ const LiveChat = () => {
       {/* Chat Button */}
       {!isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={onToggle}
           className="fixed bottom-6 right-6 bg-indigo-600 text-white p-4 rounded-full shadow-lg hover:bg-indigo-700 transition-colors z-50 relative"
         >
           {unreadCount > 0 && (
@@ -140,7 +100,7 @@ const LiveChat = () => {
               <p className="text-sm text-indigo-200">We typically reply in a few minutes</p>
             </div>
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={onToggle}
               className="text-white hover:text-indigo-200"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

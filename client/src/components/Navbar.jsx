@@ -3,13 +3,15 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useChat } from '../context/ChatContext';
 
 const API_BASE = 'https://ecommerce-app-8nbo.onrender.com/api';
 
-const Navbar = () => {
+const Navbar = ({ isChatOpen, setIsChatOpen }) => {
   const { cartCount } = useCart();
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { unreadCount: chatUnreadCount } = useChat();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -128,6 +130,20 @@ const Navbar = () => {
                 </span>
               )}
             </Link>
+            <button
+              onClick={() => setIsChatOpen(!isChatOpen)}
+              className="relative text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md font-medium"
+              title="Chat"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              {chatUnreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {chatUnreadCount > 9 ? '9+' : chatUnreadCount}
+                </span>
+              )}
+            </button>
             {user ? (
               <div className="flex items-center space-x-3" ref={dropdownRef}>
                 <Link 
