@@ -120,8 +120,10 @@ const AdminChat = () => {
       const response = await fetch(`${API_BASE}/chat/admin/sessions`);
       const data = await response.json();
       setSessions(data);
+      setLoading(false);
     } catch (err) {
       console.error('Error loading sessions:', err);
+      setLoading(false);
     }
   };
 

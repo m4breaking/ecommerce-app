@@ -92,7 +92,7 @@ const LiveChat = ({ isOpen: propIsOpen, onToggle }) => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 w-full sm:w-96 h-[80vh] sm:h-[500px] bg-white dark:bg-gray-800 rounded-t-lg sm:rounded-lg shadow-2xl z-50 flex flex-col">
+        <div className="fixed bottom-6 right-6 w-80 sm:w-96 h-[500px] bg-white dark:bg-gray-800 rounded-lg shadow-2xl z-50 flex flex-col">
           {/* Header */}
           <div className="bg-indigo-600 text-white p-4 rounded-t-lg flex justify-between items-center">
             <div>
