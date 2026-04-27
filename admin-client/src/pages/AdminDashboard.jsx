@@ -121,35 +121,30 @@ const AdminDashboard = () => {
     if (index === 0) return;
     
     const newProducts = [...products];
-    const currentProduct = newProducts[index];
-    const aboveProduct = newProducts[index - 1];
+    const temp = newProducts[index];
+    newProducts[index] = newProducts[index - 1];
+    newProducts[index - 1] = temp;
     
-    // Swap positions
-    const tempPosition = currentProduct.position;
-    currentProduct.position = aboveProduct.position;
-    aboveProduct.position = tempPosition;
-    
-    // Swap in array
-    newProducts[index] = aboveProduct;
-    newProducts[index - 1] = currentProduct;
+    // Renumber all products based on new order
+    const updatedProducts = newProducts.map((product, idx) => ({
+      ...product,
+      position: idx
+    }));
     
     // Update local state
-    setProducts(newProducts);
+    setProducts(updatedProducts);
     
-    // Update only the two swapped products in database
+    // Update all product positions in database
     try {
-      await Promise.all([
-        fetch(`${API_BASE}/products/${currentProduct.id}/position`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ position: currentProduct.position })
-        }),
-        fetch(`${API_BASE}/products/${aboveProduct.id}/position`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ position: aboveProduct.position })
-        })
-      ]);
+      await Promise.all(
+        updatedProducts.map((product) =>
+          fetch(`${API_BASE}/products/${product.id}/position`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ position: product.position })
+          })
+        )
+      );
     } catch (err) {
       console.error('Error updating positions:', err);
       loadProducts();
@@ -160,35 +155,30 @@ const AdminDashboard = () => {
     if (index === products.length - 1) return;
     
     const newProducts = [...products];
-    const currentProduct = newProducts[index];
-    const belowProduct = newProducts[index + 1];
+    const temp = newProducts[index];
+    newProducts[index] = newProducts[index + 1];
+    newProducts[index + 1] = temp;
     
-    // Swap positions
-    const tempPosition = currentProduct.position;
-    currentProduct.position = belowProduct.position;
-    belowProduct.position = tempPosition;
-    
-    // Swap in array
-    newProducts[index] = belowProduct;
-    newProducts[index + 1] = currentProduct;
+    // Renumber all products based on new order
+    const updatedProducts = newProducts.map((product, idx) => ({
+      ...product,
+      position: idx
+    }));
     
     // Update local state
-    setProducts(newProducts);
+    setProducts(updatedProducts);
     
-    // Update only the two swapped products in database
+    // Update all product positions in database
     try {
-      await Promise.all([
-        fetch(`${API_BASE}/products/${currentProduct.id}/position`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ position: currentProduct.position })
-        }),
-        fetch(`${API_BASE}/products/${belowProduct.id}/position`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ position: belowProduct.position })
-        })
-      ]);
+      await Promise.all(
+        updatedProducts.map((product) =>
+          fetch(`${API_BASE}/products/${product.id}/position`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ position: product.position })
+          })
+        )
+      );
     } catch (err) {
       console.error('Error updating positions:', err);
       loadProducts();
