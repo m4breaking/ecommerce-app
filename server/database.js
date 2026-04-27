@@ -57,12 +57,6 @@ function initializeDatabase() {
           }
         }
       });
-      // Insert sample data if table is empty
-      db.get('SELECT COUNT(*) as count FROM products', (err, row) => {
-        if (!err && row.count === 0) {
-          insertSampleProducts();
-        }
-      });
     }
   });
 
