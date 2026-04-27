@@ -111,6 +111,87 @@ const Orders = () => {
     );
   };
 
+  const downloadInvoice = (order) => {
+    const invoiceHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Invoice #${order.id}</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+    .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+    .header h1 { margin: 0; color: #333; }
+    .info { margin-bottom: 30px; }
+    .info p { margin: 5px 0; }
+    .items { margin-bottom: 30px; }
+    .items table { width: 100%; border-collapse: collapse; }
+    .items th, .items td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    .items th { background-color: #f5f5f5; }
+    .total { text-align: right; font-size: 18px; font-weight: bold; }
+    .footer { margin-top: 50px; text-align: center; color: #666; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>INVOICE</h1>
+    <p>Order #${order.id}</p>
+    <p>Date: ${new Date(order.created_at).toLocaleDateString()}</p>
+  </div>
+  
+  <div class="info">
+    <p><strong>Customer:</strong> ${order.name}</p>
+    <p><strong>Email:</strong> ${order.email || 'N/A'}</p>
+    <p><strong>Phone:</strong> ${order.phone || 'N/A'}</p>
+    <p><strong>Shipping Address:</strong> ${order.address}</p>
+    <p><strong>Payment Method:</strong> ${order.payment_method.toUpperCase()}</p>
+    <p><strong>Status:</strong> ${order.status.toUpperCase()}</p>
+  </div>
+  
+  <div class="items">
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${order.items.map(item => `
+          <tr>
+            <td>${item.product_name}</td>
+            <td>${item.quantity}</td>
+            <td>৳${item.price.toFixed(2)}</td>
+            <td>৳${(item.price * item.quantity).toFixed(2)}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="total">
+    <p>Total: ৳${order.total_amount.toFixed(2)}</p>
+  </div>
+  
+  <div class="footer">
+    <p>Thank you for your order!</p>
+  </div>
+</body>
+</html>
+    `;
+
+    const blob = new Blob([invoiceHtml], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `invoice-${order.id}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -176,9 +257,17 @@ const Orders = () => {
                     <p className="text-sm text-gray-600 dark:text-gray-300">Shipping to: {order.address}</p>
                     <p className="text-sm text-gray-600 dark:text-gray-300">Payment: {order.payment_method.toUpperCase()}</p>
                   </div>
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">
-                    Total: ৳{order.total_amount.toFixed(2)}
-                  </p>
+                  <div className="text-right">
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">
+                      Total: ৳{order.total_amount.toFixed(2)}
+                    </p>
+                    <button
+                      onClick={() => downloadInvoice(order)}
+                      className="mt-2 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
+                    >
+                      Download Invoice
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
