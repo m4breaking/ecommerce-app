@@ -143,13 +143,14 @@ const AdminDashboard = () => {
 
   const updateProductPositions = async (newProducts) => {
     try {
-      // Update each product's position in the array
+      // Update local state immediately for better UX
       const updatedProducts = newProducts.map((product, index) => ({
         ...product,
         position: index
       }));
+      setProducts(updatedProducts);
       
-      // Update positions in database
+      // Update positions in database in background
       await Promise.all(
         updatedProducts.map((product) =>
           fetch(`${API_BASE}/products/${product.id}/position`, {
@@ -159,11 +160,10 @@ const AdminDashboard = () => {
           })
         )
       );
-      
-      // Reload products from database to ensure correct state
-      await loadProducts();
     } catch (err) {
       console.error('Error updating positions:', err);
+      // Reload from database on error to restore correct state
+      loadProducts();
     }
   };
 
