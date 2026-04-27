@@ -131,10 +131,7 @@ const AdminDashboard = () => {
       position: idx
     }));
     
-    // Update local state
-    setProducts(updatedProducts);
-    
-    // Update all product positions in database
+    // Update all product positions in database first
     try {
       await Promise.all(
         updatedProducts.map((product) =>
@@ -145,9 +142,12 @@ const AdminDashboard = () => {
           })
         )
       );
+      
+      // Only update local state after successful database update
+      setProducts(updatedProducts);
     } catch (err) {
       console.error('Error updating positions:', err);
-      loadProducts();
+      alert('Failed to update product position');
     }
   };
 
@@ -165,10 +165,7 @@ const AdminDashboard = () => {
       position: idx
     }));
     
-    // Update local state
-    setProducts(updatedProducts);
-    
-    // Update all product positions in database
+    // Update all product positions in database first
     try {
       await Promise.all(
         updatedProducts.map((product) =>
@@ -179,9 +176,12 @@ const AdminDashboard = () => {
           })
         )
       );
+      
+      // Only update local state after successful database update
+      setProducts(updatedProducts);
     } catch (err) {
       console.error('Error updating positions:', err);
-      loadProducts();
+      alert('Failed to update product position');
     }
   };
 
