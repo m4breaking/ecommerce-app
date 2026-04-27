@@ -12,8 +12,18 @@ const AdminChat = () => {
   const [replyMessage, setReplyMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [unreadCounts, setUnreadCounts] = useState({});
+  const [lastMessageCounts, setLastMessageCounts] = useState({});
   const chatEndRef = useRef(null);
   const pollingIntervalRef = useRef(null);
+  const sessionsPollingRef = useRef(null);
+
+  // Request notification permission
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
 
   useEffect(() => {
     if (!admin) {
@@ -21,11 +31,58 @@ const AdminChat = () => {
       return;
     }
     loadSessions();
+    
+    // Poll for sessions every 5 seconds
+    sessionsPollingRef.current = setInterval(() => {
+      loadSessions();
+    }, 5000);
+
+    return () => {
+      if (sessionsPollingRef.current) {
+        clearInterval(sessionsPollingRef.current);
+      }
+    };
   }, [admin, navigate]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Check for new messages in sessions and update unread counts
+  useEffect(() => {
+    sessions.forEach(session => {
+      const lastCount = lastMessageCounts[session.session_id] || 0;
+      if (session.message_count > lastCount && selectedSession !== session.session_id) {
+        const newCount = session.message_count - lastCount;
+        setUnreadCounts(prev => ({
+          ...prev,
+          [session.session_id]: (prev[session.session_id] || 0) + newCount
+        }));
+        
+        // Show browser notification for new customer messages
+        if (newCount > 0 && 'Notification' in window && Notification.permission === 'granted') {
+          new Notification(`New message from ${session.username || 'Customer'}`, {
+            body: session.last_message,
+            icon: '/favicon.ico'
+          });
+        }
+      }
+      setLastMessageCounts(prev => ({
+        ...prev,
+        [session.session_id]: session.message_count
+      }));
+    });
+  }, [sessions, lastMessageCounts, selectedSession]);
+
+  // Reset unread count when session is selected
+  useEffect(() => {
+    if (selectedSession) {
+      setUnreadCounts(prev => ({
+        ...prev,
+        [selectedSession]: 0
+      }));
+    }
+  }, [selectedSession]);
 
   // Auto-refresh messages when a session is selected
   useEffect(() => {
@@ -227,10 +284,15 @@ const AdminChat = () => {
                   <div
                     key={session.session_id}
                     onClick={() => handleSessionSelect(session.session_id)}
-                    className={`p-4 cursor-pointer hover:bg-white/10 ${
+                    className={`p-4 cursor-pointer hover:bg-white/10 relative ${
                       selectedSession === session.session_id ? 'bg-indigo-500/20' : ''
                     }`}
                   >
+                    {unreadCounts[session.session_id] > 0 && (
+                      <span className="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                        {unreadCounts[session.session_id] > 9 ? '9+' : unreadCounts[session.session_id]}
+                      </span>
+                    )}
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <p className="font-medium text-sm text-white">
