@@ -118,18 +118,28 @@ const AdminDashboard = () => {
   };
 
   const handleMoveUp = async (index) => {
-    if (index === 0) return;
+    console.log('handleMoveUp called with index:', index);
+    if (index === 0) {
+      console.log('Index is 0, returning early');
+      return;
+    }
     
     const newProducts = [...products];
+    console.log('Before swap:', newProducts.map(p => ({ id: p.id, name: p.name, position: p.position })));
+    
     const temp = newProducts[index];
     newProducts[index] = newProducts[index - 1];
     newProducts[index - 1] = temp;
+    
+    console.log('After swap:', newProducts.map(p => ({ id: p.id, name: p.name, position: p.position })));
     
     // Renumber all products based on new order
     const updatedProducts = newProducts.map((product, idx) => ({
       ...product,
       position: idx
     }));
+    
+    console.log('After renumber:', updatedProducts.map(p => ({ id: p.id, name: p.name, position: p.position })));
     
     // Update all product positions in database first
     try {
@@ -143,6 +153,7 @@ const AdminDashboard = () => {
         )
       );
       
+      console.log('Database update successful, updating local state');
       // Only update local state after successful database update
       setProducts(updatedProducts);
     } catch (err) {
