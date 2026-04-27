@@ -151,10 +151,9 @@ const AdminDashboard = () => {
           })
         )
       );
-      loadProducts();
+      setProducts(newProducts);
     } catch (err) {
       console.error('Error updating positions:', err);
-      alert('Failed to update positions');
     }
   };
 
