@@ -44,7 +44,9 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       const data = await productsAPI.getAll();
-      setProducts(data);
+      // Sort products by position
+      const sortedProducts = data.sort((a, b) => a.position - b.position);
+      setProducts(sortedProducts);
     } catch (err) {
       console.error('Error loading products:', err);
     } finally {
@@ -141,17 +143,24 @@ const AdminDashboard = () => {
 
   const updateProductPositions = async (newProducts) => {
     try {
-      // Update each product's position
+      // Update each product's position in the array
+      const updatedProducts = newProducts.map((product, index) => ({
+        ...product,
+        position: index
+      }));
+      
+      // Update positions in database
       await Promise.all(
-        newProducts.map((product, index) =>
+        updatedProducts.map((product) =>
           fetch(`${API_BASE}/products/${product.id}/position`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ position: index })
+            body: JSON.stringify({ position: product.position })
           })
         )
       );
-      setProducts(newProducts);
+      
+      setProducts(updatedProducts);
     } catch (err) {
       console.error('Error updating positions:', err);
     }
@@ -286,21 +295,25 @@ const AdminDashboard = () => {
               {products.map((product, index) => (
                 <tr key={product.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-2">
                       <button
                         onClick={() => handleMoveUp(index)}
                         disabled={index === 0}
-                        className="text-white hover:text-purple-200 disabled:opacity-30"
+                        className="p-2 bg-white/20 hover:bg-white/30 text-white rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       >
-                        ↑
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                        </svg>
                       </button>
-                      <span className="text-white">{index + 1}</span>
+                      <span className="text-white font-medium">{index + 1}</span>
                       <button
                         onClick={() => handleMoveDown(index)}
                         disabled={index === products.length - 1}
-                        className="text-white hover:text-purple-200 disabled:opacity-30"
+                        className="p-2 bg-white/20 hover:bg-white/30 text-white rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       >
-                        ↓
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
                       </button>
                     </div>
                   </td>
