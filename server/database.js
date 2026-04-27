@@ -229,10 +229,10 @@ function initializeDatabase() {
     CREATE TABLE IF NOT EXISTS chat_messages (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       session_id TEXT NOT NULL,
-      username TEXT,
-      user_id INTEGER,
+      sender TEXT NOT NULL,
       message TEXT NOT NULL,
-      is_admin INTEGER DEFAULT 0,
+      user_id INTEGER,
+      username TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `, (err) => {

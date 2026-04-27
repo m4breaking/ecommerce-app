@@ -2,25 +2,6 @@ const express = require('express');
 const router = express.Router();
 const db = require('../database');
 
-// Simple table initialization
-db.run(`
-  CREATE TABLE IF NOT EXISTS chat_messages (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    session_id TEXT NOT NULL,
-    sender TEXT NOT NULL,
-    message TEXT NOT NULL,
-    user_id INTEGER,
-    username TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
-`, (err) => {
-  if (err) {
-    console.error('Error creating chat_messages table:', err.message);
-  } else {
-    console.log('Chat messages table initialized');
-  }
-});
-
 // Get all active chat sessions (for admin) - must come before :sessionId
 router.get('/admin/sessions', (req, res) => {
   db.all(
