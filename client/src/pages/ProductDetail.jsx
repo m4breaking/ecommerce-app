@@ -167,6 +167,7 @@ const ProductDetail = () => {
               src={product.image_url || 'https://via.placeholder.com/600'}
               alt={product.name}
               className="w-full h-64 sm:h-80 md:h-96 object-cover"
+              loading="lazy"
             />
           </div>
           <div className="md:w-1/2 p-4 sm:p-6 md:p-8">

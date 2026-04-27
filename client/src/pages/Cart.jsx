@@ -81,6 +81,7 @@ const Cart = () => {
                     src={item.image_url || 'https://via.placeholder.com/100'}
                     alt={item.name}
                     className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded"
+                    loading="lazy"
                   />
                   <div className="flex-1 text-center sm:text-left">
                     <Link to={`/product/${item.product_id}`} className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400">

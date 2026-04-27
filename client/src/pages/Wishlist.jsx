@@ -83,6 +83,7 @@ const Wishlist = () => {
                 src={item.image_url || 'https://via.placeholder.com/400'}
                 alt={item.name}
                 className="w-full h-48 object-cover"
+                loading="lazy"
               />
               <div className="p-4 flex-1 flex flex-col">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{item.name}</h2>
