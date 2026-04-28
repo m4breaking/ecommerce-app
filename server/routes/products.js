@@ -16,6 +16,8 @@ const productSchema = Joi.object({
 
 // Get all products with search and filter
 router.get('/', (req, res) => {
+  console.log('Products API called with query:', req.query);
+  
   const { search, category, minPrice, maxPrice } = req.query;
   
   let sql = 'SELECT * FROM products WHERE 1=1';
@@ -43,10 +45,15 @@ router.get('/', (req, res) => {
 
   sql += ' ORDER BY position ASC, created_at DESC';
 
+  console.log('Executing SQL:', sql);
+  console.log('With params:', params);
+
   db.all(sql, params, (err, rows) => {
     if (err) {
+      console.error('Database error in products API:', err);
       return res.status(500).json({ error: { message: err.message, status: 500 } });
     }
+    console.log('Products query returned', rows.length, 'rows');
     res.json(rows);
   });
 });
