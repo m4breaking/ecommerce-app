@@ -42,22 +42,36 @@ function initializeDatabase() {
       stock INTEGER NOT NULL,
       image_url TEXT,
       category TEXT,
-      position INTEGER DEFAULT 0
+      position INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `, (err) => {
     if (err) {
       console.error('Error creating products table:', err.message);
     } else {
-      // Check if position column exists
+      // Check and add missing columns
       db.all("PRAGMA table_info(products)", (err, columns) => {
         if (!err) {
-          const hasPosition = columns.some(col => col.name === 'position');
-          if (!hasPosition) {
+          const columnNames = columns.map(col => col.name);
+          
+          // Add position column if missing
+          if (!columnNames.includes('position')) {
             db.run(`ALTER TABLE products ADD COLUMN position INTEGER DEFAULT 0`, (err) => {
               if (err && !err.message.includes('duplicate column name')) {
                 console.error('Error adding position column:', err.message);
               } else {
                 console.log('position column added to products');
+              }
+            });
+          }
+          
+          // Add created_at column if missing
+          if (!columnNames.includes('created_at')) {
+            db.run(`ALTER TABLE products ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP`, (err) => {
+              if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding created_at column:', err.message);
+              } else {
+                console.log('created_at column added to products');
               }
             });
           }
