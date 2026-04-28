@@ -72,7 +72,7 @@ const LiveChat = () => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-0 right-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-2 w-10 h-10 rounded-full shadow-2xl hover:shadow-indigo-500/50 hover:scale-110 transition-all duration-300 z-50 relative group animate-pulse flex items-center justify-center"
+          className="fixed bottom-0 left-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-2 w-10 h-10 rounded-full shadow-2xl hover:shadow-indigo-500/50 hover:scale-110 transition-all duration-300 z-50 relative group animate-pulse flex items-center justify-center sticky"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -83,7 +83,7 @@ const LiveChat = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 w-full sm:w-96 h-[80vh] sm:h-[500px] bg-white dark:bg-gray-800 rounded-t-lg sm:rounded-lg shadow-2xl z-50 flex flex-col">
+        <div className="fixed bottom-0 left-0 w-full sm:w-96 h-[80vh] sm:h-[500px] bg-white dark:bg-gray-800 rounded-t-lg sm:rounded-lg shadow-2xl z-50 flex flex-col">
           {/* Header */}
           <div className="bg-indigo-600 text-white p-4 rounded-t-lg flex justify-between items-center">
             <div>
