@@ -232,7 +232,7 @@ const AdminUsers = () => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-purple-200">New This Month</p>
-                  <p className="text-2xl font-semibold text-white">{stats.new_users}</p>
+                  <p className="text-2xl font-semibold text-white">{stats.new_users_this_month}</p>
                 </div>
               </div>
             </div>

@@ -9,7 +9,9 @@ router.get('/analytics', (req, res) => {
       COUNT(*) as total_orders,
       SUM(total_amount) as total_revenue,
       AVG(total_amount) as average_order_value,
-      COUNT(DISTINCT user_id) as unique_customers
+      COUNT(DISTINCT user_id) as unique_customers,
+      COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_orders,
+      COUNT(CASE WHEN created_at >= datetime('now', '-30 days') THEN 1 END) as orders_this_month
     FROM orders
   `;
 
@@ -64,10 +66,12 @@ router.get('/analytics', (req, res) => {
             overview: {
               total_orders: row.total_orders || 0,
               total_revenue: row.total_revenue || 0,
-              average_order_value: row.average_order_value || 0,
-              unique_customers: row.unique_customers || 0
+              avg_order_value: row.average_order_value || 0,
+              pending_orders: row.pending_orders || 0,
+              unique_customers: row.unique_customers || 0,
+              orders_this_month: row.orders_this_month || 0
             },
-            orders_by_status: statusRows,
+            by_status: statusRows,
             top_products: productRows,
             recent_orders: recentRows
           });

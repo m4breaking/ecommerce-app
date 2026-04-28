@@ -74,7 +74,8 @@ const AdminDashboard = () => {
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock),
         image_url: formData.image_url,
-        category: formData.category
+        category: formData.category,
+        position: formData.position
       };
 
       if (editingProduct) {
@@ -114,6 +115,100 @@ const AdminDashboard = () => {
         console.error('Error deleting product:', err);
         alert('Failed to delete product');
       }
+    }
+  };
+
+  const handleMoveUp = async (index) => {
+    if (index === 0) return;
+    
+    const newProducts = [...products];
+    const currentProduct = newProducts[index];
+    const aboveProduct = newProducts[index - 1];
+    
+    // Swap in array
+    newProducts[index] = aboveProduct;
+    newProducts[index - 1] = currentProduct;
+    
+    // Update local state immediately
+    setProducts(newProducts);
+    
+    // Update only the two swapped products in database
+    try {
+      await Promise.all([
+        fetch(`${API_BASE}/products/${currentProduct.id}/position`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ position: index - 1 })
+        }),
+        fetch(`${API_BASE}/products/${aboveProduct.id}/position`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ position: index })
+        })
+      ]);
+    } catch (err) {
+      console.error('Error updating positions:', err);
+      loadProducts();
+    }
+  };
+
+  const handleMoveDown = async (index) => {
+    if (index === products.length - 1) return;
+    
+    const newProducts = [...products];
+    const currentProduct = newProducts[index];
+    const belowProduct = newProducts[index + 1];
+    
+    // Swap in array
+    newProducts[index] = belowProduct;
+    newProducts[index + 1] = currentProduct;
+    
+    // Update local state immediately
+    setProducts(newProducts);
+    
+    // Update only the two swapped products in database
+    try {
+      await Promise.all([
+        fetch(`${API_BASE}/products/${currentProduct.id}/position`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ position: index + 1 })
+        }),
+        fetch(`${API_BASE}/products/${belowProduct.id}/position`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ position: index })
+        })
+      ]);
+    } catch (err) {
+      console.error('Error updating positions:', err);
+      loadProducts();
+    }
+  };
+
+  const updateProductPositions = async (newProducts) => {
+    try {
+      // Update local state immediately for better UX
+      const updatedProducts = newProducts.map((product, index) => ({
+        ...product,
+        position: index
+      }));
+      setProducts(updatedProducts);
+      
+      // Update positions in database in background
+      await Promise.all(
+        updatedProducts.map((product) =>
+          fetch(`${API_BASE}/products/${product.id}/position`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ position: product.position })
+          })
+        )
+      );
+    } catch (err) {
+      console.error('Error updating positions:', err);
+      // Reload from database on error to restore correct state
+      loadProducts();
     }
   };
 
@@ -234,6 +329,7 @@ const AdminDashboard = () => {
           <table className="min-w-full divide-y divide-white/20">
             <thead className="bg-white/10">
               <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Position</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Product</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Category</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Price</th>
@@ -242,8 +338,31 @@ const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody className="bg-white/10 divide-y divide-white/20">
-              {products.map((product) => (
+              {products.map((product, index) => (
                 <tr key={product.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleMoveUp(index)}
+                        disabled={index === 0}
+                        className="p-2 bg-white/20 hover:bg-white/30 text-white rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                        </svg>
+                      </button>
+                      <span className="text-white font-medium">{index + 1}</span>
+                      <button
+                        onClick={() => handleMoveDown(index)}
+                        disabled={index === products.length - 1}
+                        className="p-2 bg-white/20 hover:bg-white/30 text-white rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <img

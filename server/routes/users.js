@@ -19,7 +19,9 @@ router.get('/stats', (req, res) => {
     SELECT 
       COUNT(*) as total_users,
       COUNT(CASE WHEN created_at >= datetime('now', '-7 days') THEN 1 END) as new_users_this_week,
-      COUNT(CASE WHEN created_at >= datetime('now', '-1 day') THEN 1 END) as new_users_today
+      COUNT(CASE WHEN created_at >= datetime('now', '-1 day') THEN 1 END) as new_users_today,
+      COUNT(CASE WHEN created_at >= datetime('now', '-30 days') THEN 1 END) as new_users_this_month,
+      (SELECT COUNT(DISTINCT user_id) FROM orders WHERE user_id IS NOT NULL AND created_at >= datetime('now', '-30 days')) as active_users
     FROM users
   `;
   db.get(sql, [], (err, row) => {

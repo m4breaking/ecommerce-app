@@ -10,7 +10,8 @@ router.get('/admin/sessions', (req, res) => {
             (SELECT message FROM chat_messages WHERE session_id = cm.session_id ORDER BY created_at DESC LIMIT 1) as last_message,
             (SELECT username FROM chat_messages WHERE session_id = cm.session_id AND username IS NOT NULL LIMIT 1) as username,
             (SELECT user_id FROM chat_messages WHERE session_id = cm.session_id AND user_id IS NOT NULL LIMIT 1) as user_id,
-            COUNT(*) as message_count
+            COUNT(*) as message_count,
+            (SELECT COUNT(*) FROM chat_messages WHERE session_id = cm.session_id AND sender = 'customer') as customer_message_count
      FROM chat_messages cm
      GROUP BY session_id
      ORDER BY last_message_time DESC`,

@@ -12,11 +12,20 @@ const AdminChat = () => {
   const [replyMessage, setReplyMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [unreadCounts, setUnreadCounts] = useState({});
+  const [unreadCounts, setUnreadCounts] = useState(() => {
+    // Load unread counts from localStorage
+    const saved = localStorage.getItem('adminUnreadCounts');
+    return saved ? JSON.parse(saved) : {};
+  });
   const [lastMessageCounts, setLastMessageCounts] = useState({});
   const chatEndRef = useRef(null);
   const pollingIntervalRef = useRef(null);
   const sessionsPollingRef = useRef(null);
+
+  // Save unread counts to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('adminUnreadCounts', JSON.stringify(unreadCounts));
+  }, [unreadCounts]);
 
   // Request notification permission
   useEffect(() => {
@@ -52,8 +61,10 @@ const AdminChat = () => {
   useEffect(() => {
     sessions.forEach(session => {
       const lastCount = lastMessageCounts[session.session_id] || 0;
-      if (session.message_count > lastCount && selectedSession !== session.session_id) {
-        const newCount = session.message_count - lastCount;
+      // Use customer_message_count to only count customer messages, not admin replies
+      const currentCount = session.customer_message_count || 0;
+      if (currentCount > lastCount && selectedSession !== session.session_id) {
+        const newCount = currentCount - lastCount;
         setUnreadCounts(prev => ({
           ...prev,
           [session.session_id]: (prev[session.session_id] || 0) + newCount
@@ -67,12 +78,16 @@ const AdminChat = () => {
           });
         }
       }
-      setLastMessageCounts(prev => ({
-        ...prev,
-        [session.session_id]: session.message_count
-      }));
     });
-  }, [sessions, lastMessageCounts, selectedSession]);
+    // Update last message counts after processing
+    setLastMessageCounts(prev => {
+      const newCounts = { ...prev };
+      sessions.forEach(session => {
+        newCounts[session.session_id] = session.customer_message_count || 0;
+      });
+      return newCounts;
+    });
+  }, [sessions, selectedSession]);
 
   // Reset unread count when session is selected
   useEffect(() => {
