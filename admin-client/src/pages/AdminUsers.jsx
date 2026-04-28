@@ -246,6 +246,7 @@ const AdminUsers = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">ID</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Name</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Email</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Phone</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Role</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Created At</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
@@ -256,7 +257,8 @@ const AdminUsers = () => {
                 <tr key={user.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{user.id}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{user.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-200">{user.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-200">{user.email || 'N/A'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-200">{user.phone}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{user.role || 'user'}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-200">
                     {new Date(user.created_at).toLocaleDateString()}
@@ -308,7 +310,11 @@ const AdminUsers = () => {
               </div>
               <div>
                 <p className="text-sm text-purple-200">Email</p>
-                <p className="text-white">{selectedUser.email}</p>
+                <p className="text-white">{selectedUser.email || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-purple-200">Phone</p>
+                <p className="text-white">{selectedUser.phone}</p>
               </div>
               <div>
                 <p className="text-sm text-purple-200">Role</p>
