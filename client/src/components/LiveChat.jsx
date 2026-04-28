@@ -68,16 +68,6 @@ const LiveChat = () => {
 
   return (
     <>
-      {/* Chat Button */}
-      {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 bg-indigo-600 text-white p-4 rounded-full shadow-lg hover:bg-indigo-700 transition-colors z-50 relative"
-        >
-          💬
-        </button>
-      )}
-
       {/* Chat Window */}
       {isOpen && (
         <div className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 w-full sm:w-96 h-[80vh] sm:h-[500px] bg-white dark:bg-gray-800 rounded-t-lg sm:rounded-lg shadow-2xl z-50 flex flex-col">
