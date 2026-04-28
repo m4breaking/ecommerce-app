@@ -53,7 +53,7 @@ const Checkout = () => {
         address: formData.address,
         email: formData.email || null,
         payment_method: formData.paymentMethod,
-        total_amount: finalTotal,
+        total_amount: total,
         items: cartItems.map(item => ({
           product_id: item.product_id,
           name: item.name,
@@ -71,12 +71,12 @@ const Checkout = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create order');
+        const errorMessage = data.error?.message || data.error || 'Failed to create order';
+        throw new Error(errorMessage);
       }
 
-
       clearCart();
-      navigate('/checkout-success');
+      navigate('/checkout-success', { state: { orderId: data.order_id, orderData } });
     } catch (err) {
       console.error('Error creating order:', err);
       alert('Failed to place order. Please try again.');
@@ -188,6 +188,54 @@ const Checkout = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                       </svg>
                       Cash on Delivery
+                    </span>
+                  </label>
+                  <label className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="card"
+                      checked={formData.paymentMethod === 'card'}
+                      onChange={handleChange}
+                      className="mr-3"
+                    />
+                    <span className="flex items-center text-gray-900 dark:text-white">
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                      Credit/Debit Card
+                    </span>
+                  </label>
+                  <label className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="bkash"
+                      checked={formData.paymentMethod === 'bkash'}
+                      onChange={handleChange}
+                      className="mr-3"
+                    />
+                    <span className="flex items-center text-gray-900 dark:text-white">
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                      bKash
+                    </span>
+                  </label>
+                  <label className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="bank"
+                      checked={formData.paymentMethod === 'bank'}
+                      onChange={handleChange}
+                      className="mr-3"
+                    />
+                    <span className="flex items-center text-gray-900 dark:text-white">
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                      Bank Transfer
                     </span>
                   </label>
                 </div>

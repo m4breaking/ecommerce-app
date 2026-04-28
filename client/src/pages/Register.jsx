@@ -69,7 +69,7 @@ const Register = () => {
       }
 
       // Auto login after successful registration
-      const loginResult = await login(formData.email, formData.password);
+      const loginResult = await login(formData.phone, formData.password);
       if (loginResult.success) {
         navigate('/');
       } else {

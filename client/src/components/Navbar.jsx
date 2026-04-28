@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -10,12 +10,18 @@ const Navbar = () => {
   const { cartCount } = useCart();
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const dropdownRef = useRef(null);
   const categoryDropdownRef = useRef(null);
+
+  const handleNavClick = (path) => {
+    // Clear URL search params when navigating
+    navigate(path);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -70,12 +76,12 @@ const Navbar = () => {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link 
-              to="/" 
+            <button
+              onClick={() => handleNavClick('/')}
               className="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md font-medium"
             >
               Products
-            </Link>
+            </button>
             <div className="relative" ref={categoryDropdownRef}>
               <button
                 onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
@@ -111,14 +117,14 @@ const Navbar = () => {
                 </div>
               )}
             </div>
-            <Link 
-              to="/contact" 
+            <Link
+              to="/contact"
               className="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md font-medium"
             >
               Contact
             </Link>
-            <Link 
-              to="/cart" 
+            <button
+              onClick={() => handleNavClick('/cart')}
               className="relative text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md font-medium"
             >
               Cart
@@ -127,7 +133,7 @@ const Navbar = () => {
                   {cartCount}
                 </span>
               )}
-            </Link>
+            </button>
             {user ? (
               <div className="flex items-center space-x-3" ref={dropdownRef}>
                 <Link 
@@ -238,13 +244,15 @@ const Navbar = () => {
         {/* Mobile menu */}
         {mobileMenuOpen && (
           <div className="md:hidden py-4 space-y-2 border-t border-gray-200 dark:border-slate-700">
-            <Link 
-              to="/" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md font-medium"
+            <button
+              onClick={() => {
+                handleNavClick('/');
+                setMobileMenuOpen(false);
+              }}
+              className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md font-medium"
             >
               Products
-            </Link>
+            </button>
             <div className="relative">
               <button
                 onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
@@ -283,17 +291,21 @@ const Navbar = () => {
                 </div>
               )}
             </div>
-            <Link 
-              to="/contact" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md font-medium"
+            <button
+              onClick={() => {
+                handleNavClick('/contact');
+                setMobileMenuOpen(false);
+              }}
+              className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md font-medium"
             >
               Contact
-            </Link>
-            <Link 
-              to="/cart" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md font-medium"
+            </button>
+            <button
+              onClick={() => {
+                handleNavClick('/cart');
+                setMobileMenuOpen(false);
+              }}
+              className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md font-medium"
             >
               Cart
               {cartCount > 0 && (
@@ -301,7 +313,7 @@ const Navbar = () => {
                   {cartCount}
                 </span>
               )}
-            </Link>
+            </button>
             {user ? (
               <>
                 <Link 
