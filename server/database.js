@@ -15,8 +15,32 @@ if (!fs.existsSync(dbDir)) {
 const dbPath = path.join(dbDir, 'ecommerce.db');
 const backupPath = path.join(dbDir, 'ecommerce.backup.db');
 
-// Create database backup before any operations
+// Check if we can write to the persistent disk
+let canUsePersistentDisk = false;
+try {
+  if (fs.existsSync(dbPath)) {
+    fs.accessSync(dbPath, fs.constants.W_OK);
+    canUsePersistentDisk = true;
+  } else {
+    // Try to create a test file
+    const testFile = path.join(dbDir, '.test');
+    fs.writeFileSync(testFile, 'test');
+    fs.unlinkSync(testFile);
+    canUsePersistentDisk = true;
+  }
+} catch (err) {
+  console.log('WARNING: Cannot write to persistent disk, using in-memory database');
+  console.log('Data will be lost on server restart');
+}
+
+// Use in-memory database if persistent disk is not available
+const finalDbPath = canUsePersistentDisk ? dbPath : ':memory:';
+console.log(`Using database at: ${finalDbPath}`);
+
+// Create database backup before any operations (only for persistent disk)
 function createBackup() {
+  if (!canUsePersistentDisk) return;
+  
   if (fs.existsSync(dbPath) && fs.statSync(dbPath).size > 0) {
     try {
       fs.copyFileSync(dbPath, backupPath);
@@ -27,8 +51,10 @@ function createBackup() {
   }
 }
 
-// Restore database from backup if main is corrupted
+// Restore database from backup if main is corrupted (only for persistent disk)
 function restoreFromBackup() {
+  if (!canUsePersistentDisk) return false;
+  
   if (fs.existsSync(backupPath) && fs.statSync(backupPath).size > 0) {
     try {
       fs.copyFileSync(backupPath, dbPath);
@@ -41,16 +67,23 @@ function restoreFromBackup() {
   return false;
 }
 
-const db = new sqlite3.Database(dbPath, (err) => {
+const db = new sqlite3.Database(finalDbPath, (err) => {
   if (err) {
     console.error('Error opening database:', err.message);
   } else {
-    console.log('Connected to SQLite database at:', dbPath);
+    console.log('Connected to SQLite database at:', finalDbPath);
     initializeDatabase();
   }
 });
 
 function initializeDatabase() {
+  // Skip file checks for in-memory database
+  if (!canUsePersistentDisk) {
+    console.log('Using in-memory database, skipping file checks');
+    createAllTables();
+    return;
+  }
+
   // Check if database file exists and its size
   if (fs.existsSync(dbPath)) {
     const stats = fs.statSync(dbPath);

@@ -9,10 +9,20 @@
     "admin": "cd admin-client && npm run dev",
     "install:all": "npm install && cd server && npm install && cd ../client && npm install && cd ../admin-client && npm install"
   },
-  "keywords": ["ecommerce", "react", "express"],
+  "keywords": [
+    "ecommerce",
+    "react",
+    "express"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "axios": "^1.15.2",
+    "nodemailer": "^8.0.6",
+    "stripe": "^22.1.0",
+    "twilio": "^6.0.0"
   }
 }

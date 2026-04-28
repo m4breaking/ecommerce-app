@@ -1,7 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const db = require('./database');
+
+// Use PostgreSQL if DATABASE_URL is available, otherwise fallback to SQLite
+const db = process.env.DATABASE_URL ? require('./database-pg') : require('./database');
+
 const productRoutes = require('./routes/products');
 const cartRoutes = require('./routes/cart');
 const chatRoutes = require('./routes/chat');
@@ -14,6 +17,12 @@ const couponRoutes = require('./routes/coupons');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Initialize database
+if (process.env.DATABASE_URL) {
+  const { initializeDatabase } = require('./database-pg-schema');
+  initializeDatabase();
+}
 
 // Middleware
 app.use(cors({
