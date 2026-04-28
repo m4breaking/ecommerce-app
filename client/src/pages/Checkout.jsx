@@ -33,6 +33,13 @@ const Checkout = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
+    
+    // Validate phone number - must be exactly 11 digits
+    const phoneRegex = /^\d{11}$/;
+    if (formData.phone && !phoneRegex.test(formData.phone)) {
+      newErrors.phone = 'Phone number must be exactly 11 digits';
+    }
+    
     if (!formData.address.trim()) newErrors.address = 'Address is required';
     
     setErrors(newErrors);

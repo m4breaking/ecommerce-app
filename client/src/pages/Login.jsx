@@ -46,6 +46,7 @@ const Login = () => {
       localStorage.removeItem('userRemember');
     }
 
+    // Pass email for both email and phone login (server will handle both)
     const result = await login(email, password);
     if (result.success) {
       navigate('/');
@@ -86,18 +87,18 @@ const Login = () => {
             <div className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Email Address
+                  Email or Phone Number
                 </label>
                 <input
                   id="email"
                   name="email"
-                  type="email"
+                  type="text"
                   autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-                  placeholder="Enter your email"
+                  placeholder="Enter your email or 11-digit phone number"
                 />
               </div>
               <div>

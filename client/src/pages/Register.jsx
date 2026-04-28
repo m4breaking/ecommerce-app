@@ -38,6 +38,13 @@ const Register = () => {
       return;
     }
 
+    // Validate phone number - must be exactly 11 digits
+    const phoneRegex = /^\d{11}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      setError('Phone number must be exactly 11 digits');
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
