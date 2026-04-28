@@ -12,6 +12,8 @@ const AdminUsers = () => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
 
@@ -62,12 +64,19 @@ const AdminUsers = () => {
   };
 
   const handleDeleteUser = async (userId) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    setUserToDelete(userId);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
     
     try {
-      await fetch(`${API_BASE}/users/${userId}`, { method: 'DELETE' });
+      await fetch(`${API_BASE}/users/${userToDelete}`, { method: 'DELETE' });
       loadUsers();
       loadStats();
+      setShowDeleteConfirm(false);
+      setUserToDelete(null);
     } catch (err) {
       console.error('Error deleting user:', err);
     }
@@ -285,6 +294,32 @@ const AdminUsers = () => {
       </div>
 
       {/* User Details Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 max-w-sm w-full mx-4 border border-white/20">
+            <h3 className="text-lg font-semibold text-white mb-2">Confirm Delete User</h3>
+            <p className="text-purple-200 mb-4">Are you sure you want to delete this user? This action cannot be undone.</p>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setUserToDelete(null);
+                }}
+                className="flex-1 px-4 py-2 bg-white/20 text-white rounded-md hover:bg-white/30 transition-colors"
+              >
+                No
+              </button>
+              <button
+                onClick={confirmDeleteUser}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showUserModal && selectedUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 max-w-md w-full mx-4 border border-white/20">

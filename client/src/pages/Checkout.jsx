@@ -144,6 +144,13 @@ const Checkout = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
+                    onKeyPress={(e) => {
+                      // Only allow numbers, backspace, delete, tab, escape, enter
+                      if (!/[0-9\b\t\x1b\r]/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    maxLength={11}
                     placeholder="01XXXXXXXXX"
                     className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md px-3 py-2"
                   />

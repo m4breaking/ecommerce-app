@@ -146,8 +146,15 @@ const Register = () => {
                   required
                   value={formData.phone}
                   onChange={handleChange}
+                  onKeyPress={(e) => {
+                    // Only allow numbers, backspace, delete, tab, escape, enter
+                    if (!/[0-9\b\t\x1b\r]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  maxLength={11}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="Enter your phone number"
+                  placeholder="Enter 11-digit phone number"
                 />
               </div>
               <div>

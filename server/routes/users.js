@@ -4,7 +4,7 @@ const db = require('../database');
 
 // Get all users
 router.get('/', (req, res) => {
-  const sql = 'SELECT id, name, email, created_at FROM users ORDER BY created_at DESC';
+  const sql = 'SELECT id, name, email, phone, created_at FROM users ORDER BY created_at DESC';
   db.all(sql, [], (err, rows) => {
     if (err) {
       return res.status(500).json({ error: { message: err.message, status: 500 } });

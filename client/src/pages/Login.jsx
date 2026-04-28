@@ -97,6 +97,12 @@ const Login = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onKeyPress={(e) => {
+                    // Allow letters, numbers, @, ., -, _, backspace, delete, tab, escape, enter
+                    if (!/[a-zA-Z0-9@._\-\b\t\x1b\r]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                   placeholder="Enter your email or 11-digit phone number"
                 />
