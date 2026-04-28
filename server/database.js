@@ -13,6 +13,33 @@ if (!fs.existsSync(dbDir)) {
 }
 
 const dbPath = path.join(dbDir, 'ecommerce.db');
+const backupPath = path.join(dbDir, 'ecommerce.backup.db');
+
+// Create database backup before any operations
+function createBackup() {
+  if (fs.existsSync(dbPath) && fs.statSync(dbPath).size > 0) {
+    try {
+      fs.copyFileSync(dbPath, backupPath);
+      console.log('Database backup created successfully');
+    } catch (err) {
+      console.error('Error creating database backup:', err.message);
+    }
+  }
+}
+
+// Restore database from backup if main is corrupted
+function restoreFromBackup() {
+  if (fs.existsSync(backupPath) && fs.statSync(backupPath).size > 0) {
+    try {
+      fs.copyFileSync(backupPath, dbPath);
+      console.log('Database restored from backup successfully');
+      return true;
+    } catch (err) {
+      console.error('Error restoring database from backup:', err.message);
+    }
+  }
+  return false;
+}
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
@@ -28,9 +55,34 @@ function initializeDatabase() {
   if (fs.existsSync(dbPath)) {
     const stats = fs.statSync(dbPath);
     console.log(`Database file exists at ${dbPath}, size: ${stats.size} bytes`);
+    
+    // If database file is empty (0 bytes), it's corrupted
+    if (stats.size === 0) {
+      console.log('WARNING: Database file is empty (0 bytes) - attempting recovery...');
+      
+      // Try to restore from backup
+      if (restoreFromBackup()) {
+        console.log('Database recovery successful from backup');
+      } else {
+        console.log('No backup available, creating fresh database');
+        // Create backup of empty file for analysis
+        const emptyBackupPath = dbPath + '.empty.' + Date.now();
+        fs.copyFileSync(dbPath, emptyBackupPath);
+        console.log(`Empty database backed up to: ${emptyBackupPath}`);
+        
+        // Remove empty file so it gets recreated
+        fs.unlinkSync(dbPath);
+        console.log('Empty database file removed, will recreate fresh database');
+      }
+    }
   } else {
     console.log(`Database file does not exist at ${dbPath}, will create new one`);
   }
+
+  // Create backup after successful initialization
+  setTimeout(() => {
+    createBackup();
+  }, 5000); // Wait 5 seconds for database to be fully initialized
 
   // Create products table
   db.run(`
@@ -330,3 +382,7 @@ function insertSampleProducts() {
 }
 
 module.exports = db;
+
+// Export backup functions for use in routes
+module.exports.createBackup = createBackup;
+module.exports.restoreFromBackup = restoreFromBackup;

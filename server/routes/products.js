@@ -74,6 +74,9 @@ router.get('/:id', (req, res) => {
 
 // Create new product
 router.post('/', (req, res) => {
+  // Create backup before modifying data
+  db.createBackup();
+  
   // Validate input
   const { error, value } = productSchema.validate(req.body);
   if (error) {
@@ -108,6 +111,9 @@ router.post('/', (req, res) => {
 
 // Update product
 router.put('/:id', (req, res) => {
+  // Create backup before modifying data
+  db.createBackup();
+  
   // Validate input
   const { error, value } = productSchema.validate(req.body);
   if (error) {
@@ -147,22 +153,26 @@ router.put('/:id', (req, res) => {
 
 // Delete product
 router.delete('/:id', (req, res) => {
+  // Create backup before modifying data
+  db.createBackup();
+  
   const sql = 'DELETE FROM products WHERE id = ?';
   db.run(sql, [req.params.id], function(err) {
     if (err) {
       return res.status(500).json({ error: { message: err.message, status: 500 } });
     }
-    
     if (this.changes === 0) {
       return res.status(404).json({ error: { message: 'Product not found', status: 404 } });
     }
-    
     res.json({ message: 'Product deleted successfully' });
   });
 });
 
 // Update product position
 router.patch('/:id/position', (req, res) => {
+  // Create backup before modifying data
+  db.createBackup();
+  
   const { position } = req.body;
   
   if (typeof position !== 'number' || position < 0) {
