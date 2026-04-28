@@ -24,6 +24,14 @@ const db = new sqlite3.Database(dbPath, (err) => {
 });
 
 function initializeDatabase() {
+  // Check if database file exists and its size
+  if (fs.existsSync(dbPath)) {
+    const stats = fs.statSync(dbPath);
+    console.log(`Database file exists at ${dbPath}, size: ${stats.size} bytes`);
+  } else {
+    console.log(`Database file does not exist at ${dbPath}, will create new one`);
+  }
+
   // Create products table
   db.run(`
     CREATE TABLE IF NOT EXISTS products (
@@ -31,18 +39,16 @@ function initializeDatabase() {
       name TEXT NOT NULL,
       description TEXT,
       price REAL NOT NULL,
-      stock INTEGER NOT NULL DEFAULT 0,
+      stock INTEGER NOT NULL,
       image_url TEXT,
       category TEXT,
-      position INTEGER DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      position INTEGER DEFAULT 0
     )
   `, (err) => {
     if (err) {
       console.error('Error creating products table:', err.message);
     } else {
-      // Check if position column exists, add if not
+      // Check if position column exists
       db.all("PRAGMA table_info(products)", (err, columns) => {
         if (!err) {
           const hasPosition = columns.some(col => col.name === 'position');
@@ -64,6 +70,8 @@ function initializeDatabase() {
           insertSampleProducts();
         } else if (!err) {
           console.log(`Products table has ${row.count} existing products, skipping sample data insertion`);
+        } else {
+          console.error('Error checking products count:', err.message);
         }
       });
     }
