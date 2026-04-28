@@ -117,18 +117,39 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
   const { user_id, name, phone, address, email, payment_method, total_amount, items } = req.body;
 
+  console.log('Order creation request received:', { 
+    user_id, 
+    name, 
+    phone, 
+    address, 
+    email, 
+    payment_method, 
+    total_amount, 
+    itemCount: items?.length 
+  });
+
   if (!name || !phone || !address || !payment_method || !total_amount || !items) {
+    console.error('Missing required fields:', { 
+      hasName: !!name, 
+      hasPhone: !!phone, 
+      hasAddress: !!address, 
+      hasPaymentMethod: !!payment_method, 
+      hasTotalAmount: !!total_amount, 
+      hasItems: !!items 
+    });
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
   // Start a transaction to ensure data consistency
   db.serialize(() => {
+    console.log('Starting transaction...');
     db.run('BEGIN TRANSACTION', (err) => {
       if (err) {
         console.error('Error starting transaction:', err);
         return res.status(500).json({ error: 'Database error' });
       }
 
+      console.log('Transaction started, inserting order...');
       // Insert order
       db.run(
         `INSERT INTO orders (user_id, name, phone, address, email, payment_method, total_amount)
@@ -142,13 +163,16 @@ router.post('/', (req, res) => {
           }
 
           const orderId = this.lastID;
+          console.log('Order inserted with ID:', orderId);
 
           // Insert order items
           let itemsInserted = 0;
           const totalItems = items.length;
           let hasError = false;
 
+          console.log('Processing', totalItems, 'order items...');
           items.forEach((item, index) => {
+            console.log('Inserting item', index + 1, ':', item.product_id);
             db.run(
               `INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
                VALUES (?, ?, ?, ?, ?)`,
@@ -164,6 +188,7 @@ router.post('/', (req, res) => {
                   return;
                 }
 
+                console.log('Item inserted, decrementing stock...');
                 // Decrement product stock
                 db.run(
                   `UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?`,
@@ -180,9 +205,11 @@ router.post('/', (req, res) => {
                     }
 
                     itemsInserted++;
+                    console.log('Items processed:', itemsInserted, '/', totalItems);
                     
                     // Check if all items are processed
                     if (itemsInserted === totalItems && !hasError) {
+                      console.log('All items processed, committing transaction...');
                       db.run('COMMIT', (commitErr) => {
                         if (commitErr) {
                           console.error('Error committing transaction:', commitErr);
@@ -193,6 +220,7 @@ router.post('/', (req, res) => {
                           return;
                         }
                         
+                        console.log('Transaction committed, order created successfully:', orderId);
                         res.status(201).json({ order_id: orderId, message: 'Order created successfully' });
                       });
                     }

@@ -7,7 +7,10 @@ const bcrypt = require('bcrypt');
 router.post('/register', async (req, res) => {
   const { name, email, phone, password } = req.body;
   
+  console.log('Registration request received:', { name, email, phone, hasPassword: !!password });
+  
   if (!name || !phone || !password) {
+    console.error('Missing required fields:', { hasName: !!name, hasPhone: !!phone, hasPassword: !!password });
     return res.status(400).json({ error: 'Name, phone, and password are required' });
   }
 
@@ -15,11 +18,12 @@ router.post('/register', async (req, res) => {
     // Check if user already exists by phone (phone is the primary identifier)
     db.get('SELECT id FROM users WHERE phone = ?', [phone], async (err, row) => {
       if (err) {
-        console.error('Error checking existing user:', err);
+        console.error('Error checking existing user by phone:', err);
         return res.status(500).json({ error: err.message });
       }
       
       if (row) {
+        console.log('Phone already registered:', phone);
         return res.status(400).json({ error: 'Phone number already registered' });
       }
 
@@ -32,14 +36,17 @@ router.post('/register', async (req, res) => {
           }
           
           if (row) {
+            console.log('Email already registered:', email);
             return res.status(400).json({ error: 'Email already registered' });
           }
 
           // Proceed with registration
+          console.log('Proceeding with registration with email');
           proceedWithRegistration(name, email, phone, password, res);
         });
       } else {
         // Proceed with registration without email
+        console.log('Proceeding with registration without email');
         proceedWithRegistration(name, null, phone, password, res);
       }
     });
@@ -50,12 +57,14 @@ router.post('/register', async (req, res) => {
 });
 
 function proceedWithRegistration(name, email, phone, password, res) {
+  console.log('Hashing password...');
   bcrypt.hash(password, 10, (err, hashedPassword) => {
     if (err) {
       console.error('Error hashing password:', err);
       return res.status(500).json({ error: 'Error processing password' });
     }
 
+    console.log('Password hashed, inserting user...');
     // Insert new user
     db.run(
       'INSERT INTO users (name, email, phone, password) VALUES (?, ?, ?, ?)',
