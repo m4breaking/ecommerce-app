@@ -121,53 +121,90 @@ router.post('/', (req, res) => {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  db.run(
-    `INSERT INTO orders (user_id, name, phone, address, email, payment_method, total_amount)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [user_id || null, name, phone, address, email || null, payment_method, total_amount],
-    function(err) {
+  // Start a transaction to ensure data consistency
+  db.serialize(() => {
+    db.run('BEGIN TRANSACTION', (err) => {
       if (err) {
-        return res.status(500).json({ error: err.message });
+        console.error('Error starting transaction:', err);
+        return res.status(500).json({ error: 'Database error' });
       }
 
-      const orderId = this.lastID;
+      // Insert order
+      db.run(
+        `INSERT INTO orders (user_id, name, phone, address, email, payment_method, total_amount)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [user_id || null, name, phone, address, email || null, payment_method, total_amount],
+        function(err) {
+          if (err) {
+            console.error('Error inserting order:', err);
+            db.run('ROLLBACK');
+            return res.status(500).json({ error: err.message });
+          }
 
-      // Insert order items and decrement stock
-      const itemPromises = items.map(item => {
-        return new Promise((resolve, reject) => {
-          db.run(
-            `INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
-             VALUES (?, ?, ?, ?, ?)`,
-            [orderId, item.product_id, item.name, item.quantity, item.price],
-            (err) => {
-              if (err) reject(err);
-              else {
+          const orderId = this.lastID;
+
+          // Insert order items
+          let itemsInserted = 0;
+          const totalItems = items.length;
+          let hasError = false;
+
+          items.forEach((item, index) => {
+            db.run(
+              `INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
+               VALUES (?, ?, ?, ?, ?)`,
+              [orderId, item.product_id, item.name, item.quantity, item.price],
+              (err) => {
+                if (err) {
+                  console.error('Error inserting order item:', err);
+                  hasError = true;
+                  db.run('ROLLBACK');
+                  if (!res.headersSent) {
+                    res.status(500).json({ error: 'Failed to create order items' });
+                  }
+                  return;
+                }
+
                 // Decrement product stock
                 db.run(
-                  `UPDATE products SET stock = stock - ? WHERE id = ?`,
-                  [item.quantity, item.product_id],
+                  `UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?`,
+                  [item.quantity, item.product_id, item.quantity],
                   (stockErr) => {
                     if (stockErr) {
                       console.error('Error decrementing stock:', stockErr.message);
+                      hasError = true;
+                      db.run('ROLLBACK');
+                      if (!res.headersSent) {
+                        res.status(500).json({ error: 'Insufficient stock or database error' });
+                      }
+                      return;
                     }
-                    resolve();
+
+                    itemsInserted++;
+                    
+                    // Check if all items are processed
+                    if (itemsInserted === totalItems && !hasError) {
+                      db.run('COMMIT', (commitErr) => {
+                        if (commitErr) {
+                          console.error('Error committing transaction:', commitErr);
+                          db.run('ROLLBACK');
+                          if (!res.headersSent) {
+                            res.status(500).json({ error: 'Failed to complete order' });
+                          }
+                          return;
+                        }
+                        
+                        res.status(201).json({ order_id: orderId, message: 'Order created successfully' });
+                      });
+                    }
                   }
                 );
               }
-            }
-          );
-        });
-      });
-
-      Promise.all(itemPromises)
-        .then(() => {
-          res.status(201).json({ order_id: orderId, message: 'Order created successfully' });
-        })
-        .catch((err) => {
-          res.status(500).json({ error: err.message });
-        });
-    }
-  );
+            );
+          });
+        }
+      );
+    });
+  });
 });
 
 // Get orders by user ID

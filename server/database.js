@@ -95,7 +95,6 @@ function initializeDatabase() {
       phone TEXT NOT NULL,
       password TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(email),
       UNIQUE(phone)
     )
   `, (err) => {
