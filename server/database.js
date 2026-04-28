@@ -79,11 +79,12 @@ function initializeDatabase() {
     console.log(`Database file does not exist at ${dbPath}, will create new one`);
   }
 
-  // Create backup after successful initialization
-  setTimeout(() => {
-    createBackup();
-  }, 5000); // Wait 5 seconds for database to be fully initialized
+  createAllTables();
+}
 
+function createAllTables() {
+  console.log('Creating all database tables...');
+  
   // Create products table
   db.run(`
     CREATE TABLE IF NOT EXISTS products (
@@ -101,45 +102,8 @@ function initializeDatabase() {
     if (err) {
       console.error('Error creating products table:', err.message);
     } else {
-      // Check and add missing columns
-      db.all("PRAGMA table_info(products)", (err, columns) => {
-        if (!err) {
-          const columnNames = columns.map(col => col.name);
-          
-          // Add position column if missing
-          if (!columnNames.includes('position')) {
-            db.run(`ALTER TABLE products ADD COLUMN position INTEGER DEFAULT 0`, (err) => {
-              if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding position column:', err.message);
-              } else {
-                console.log('position column added to products');
-              }
-            });
-          }
-          
-          // Add created_at column if missing
-          if (!columnNames.includes('created_at')) {
-            db.run(`ALTER TABLE products ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP`, (err) => {
-              if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding created_at column:', err.message);
-              } else {
-                console.log('created_at column added to products');
-              }
-            });
-          }
-        }
-      });
-      // Only insert sample data if table is empty - DO NOT overwrite existing data
-      db.get('SELECT COUNT(*) as count FROM products', (err, row) => {
-        if (!err && row.count === 0) {
-          console.log('Products table is empty, inserting sample data');
-          insertSampleProducts();
-        } else if (!err) {
-          console.log(`Products table has ${row.count} existing products, skipping sample data insertion`);
-        } else {
-          console.error('Error checking products count:', err.message);
-        }
-      });
+      console.log('Products table created successfully');
+      checkAndAddProductColumns();
     }
   });
 
@@ -157,6 +121,8 @@ function initializeDatabase() {
   `, (err) => {
     if (err) {
       console.error('Error creating cart table:', err.message);
+    } else {
+      console.log('Cart table created successfully');
     }
   });
 
@@ -175,21 +141,7 @@ function initializeDatabase() {
     if (err) {
       console.error('Error creating users table:', err.message);
     } else {
-      // Check if phone column exists, add if not
-      db.all("PRAGMA table_info(users)", (err, columns) => {
-        if (!err) {
-          const hasPhone = columns.some(col => col.name === 'phone');
-          if (!hasPhone) {
-            db.run(`ALTER TABLE users ADD COLUMN phone TEXT`, (err) => {
-              if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding phone column:', err.message);
-              } else {
-                console.log('phone column added to users');
-              }
-            });
-          }
-        }
-      });
+      console.log('Users table created successfully');
     }
   });
 
@@ -211,10 +163,12 @@ function initializeDatabase() {
   `, (err) => {
     if (err) {
       console.error('Error creating orders table:', err.message);
+    } else {
+      console.log('Orders table created successfully');
     }
   });
 
-  // Create order items table
+  // Create order_items table
   db.run(`
     CREATE TABLE IF NOT EXISTS order_items (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -223,48 +177,15 @@ function initializeDatabase() {
       product_name TEXT NOT NULL,
       quantity INTEGER NOT NULL,
       price REAL NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (order_id) REFERENCES orders(id),
       FOREIGN KEY (product_id) REFERENCES products(id)
     )
   `, (err) => {
     if (err) {
       console.error('Error creating order_items table:', err.message);
-    }
-  });
-
-  // Create wishlist table
-  db.run(`
-    CREATE TABLE IF NOT EXISTS wishlist (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER,
-      product_id INTEGER NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(id),
-      FOREIGN KEY (product_id) REFERENCES products(id),
-      UNIQUE(user_id, product_id)
-    )
-  `, (err) => {
-    if (err) {
-      console.error('Error creating wishlist table:', err.message);
-    }
-  });
-
-  // Create reviews table
-  db.run(`
-    CREATE TABLE IF NOT EXISTS reviews (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER,
-      product_id INTEGER NOT NULL,
-      rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
-      comment TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(id),
-      FOREIGN KEY (product_id) REFERENCES products(id),
-      UNIQUE(user_id, product_id)
-    )
-  `, (err) => {
-    if (err) {
-      console.error('Error creating reviews table:', err.message);
+    } else {
+      console.log('Order_items table created successfully');
     }
   });
 
