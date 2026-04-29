@@ -3,341 +3,196 @@ const router = express.Router();
 const db = require('../database');
 
 // Get analytics data
-router.get('/analytics', (req, res) => {
-  const sql = `
-    SELECT 
-      COUNT(*) as total_orders,
-      SUM(total_amount) as total_revenue,
-      AVG(total_amount) as average_order_value,
-      COUNT(DISTINCT user_id) as unique_customers,
-      COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_orders,
-      COUNT(CASE WHEN created_at >= datetime('now', '-30 days') THEN 1 END) as orders_this_month
-    FROM orders
-  `;
-
-  db.get(sql, [], (err, row) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
+router.get('/analytics', async (req, res) => {
+  try {
+    const result = await db.query(`
+      SELECT 
+        COUNT(*) as total_orders,
+        SUM(total_amount) as total_revenue,
+        AVG(total_amount) as average_order_value,
+        COUNT(DISTINCT user_id) as unique_customers,
+        COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_orders,
+        COUNT(CASE WHEN created_at >= NOW() - INTERVAL '30 days' THEN 1 END) as orders_this_month
+      FROM orders
+    `);
 
     // Get orders by status
-    const statusSql = `
+    const statusResult = await db.query(`
       SELECT status, COUNT(*) as count
       FROM orders
       GROUP BY status
-    `;
+    `);
 
-    db.all(statusSql, [], (err, statusRows) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
+    // Get top selling products
+    const topProductsResult = await db.query(`
+      SELECT 
+        oi.product_name,
+        SUM(oi.quantity) as total_sold,
+        SUM(oi.quantity * oi.price) as total_revenue
+      FROM order_items oi
+      GROUP BY oi.product_name
+      ORDER BY total_sold DESC
+      LIMIT 5
+    `);
 
-      // Get top selling products
-      const topProductsSql = `
-        SELECT 
-          oi.product_name,
-          SUM(oi.quantity) as total_sold,
-          SUM(oi.quantity * oi.price) as total_revenue
-        FROM order_items oi
-        GROUP BY oi.product_name
-        ORDER BY total_sold DESC
-        LIMIT 5
-      `;
-
-      db.all(topProductsSql, [], (err, productRows) => {
-        if (err) {
-          return res.status(500).json({ error: err.message });
-        }
-
-        // Get recent orders
-        const recentOrdersSql = `
-          SELECT id, name, total_amount, status, created_at
-          FROM orders
-          ORDER BY created_at DESC
-          LIMIT 5
-        `;
-
-        db.all(recentOrdersSql, [], (err, recentRows) => {
-          if (err) {
-            return res.status(500).json({ error: err.message });
-          }
-
-          res.json({
-            overview: {
-              total_orders: row.total_orders || 0,
-              total_revenue: row.total_revenue || 0,
-              avg_order_value: row.average_order_value || 0,
-              pending_orders: row.pending_orders || 0,
-              unique_customers: row.unique_customers || 0,
-              orders_this_month: row.orders_this_month || 0
-            },
-            by_status: statusRows,
-            top_products: productRows,
-            recent_orders: recentRows
-          });
-        });
-      });
+    res.json({
+      ...result.rows[0],
+      orders_by_status: statusResult.rows,
+      top_products: topProductsResult.rows
     });
-  });
-});
-
-// Get all orders (admin)
-router.get('/', (req, res) => {
-  const sql = `
-    SELECT o.*, 
-           GROUP_CONCAT(
-             json_object(
-               'product_id', oi.product_id,
-               'product_name', oi.product_name,
-               'quantity', oi.quantity,
-               'price', oi.price
-             )
-           ) as items
-    FROM orders o
-    LEFT JOIN order_items oi ON o.id = oi.order_id
-    GROUP BY o.id
-    ORDER BY o.created_at DESC
-  `;
-
-  db.all(sql, [], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-
-    const orders = rows.map(row => ({
-      ...row,
-      items: row.items ? JSON.parse(`[${row.items}]`) : []
-    }));
-
-    res.json(orders);
-  });
-});
-
-// Create order
-router.post('/', (req, res) => {
-  const { user_id, name, phone, address, email, payment_method, total_amount, items } = req.body;
-
-  console.log('Order creation request received:', { 
-    user_id, 
-    name, 
-    phone, 
-    address, 
-    email, 
-    payment_method, 
-    total_amount, 
-    itemCount: items?.length 
-  });
-
-  if (!name || !phone || !address || !payment_method || !total_amount || !items) {
-    console.error('Missing required fields:', { 
-      hasName: !!name, 
-      hasPhone: !!phone, 
-      hasAddress: !!address, 
-      hasPaymentMethod: !!payment_method, 
-      hasTotalAmount: !!total_amount, 
-      hasItems: !!items 
-    });
-    return res.status(400).json({ error: 'Missing required fields' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
+});
 
-  // Start a transaction to ensure data consistency
-  db.serialize(() => {
-    console.log('Starting transaction...');
-    db.run('BEGIN TRANSACTION', (err) => {
-      if (err) {
-        console.error('Error starting transaction:', err);
-        return res.status(500).json({ error: 'Database error' });
-      }
-
-      console.log('Transaction started, inserting order...');
-      // Insert order
-      db.run(
-        `INSERT INTO orders (user_id, name, phone, address, email, payment_method, total_amount)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [user_id || null, name, phone, address, email || null, payment_method, total_amount],
-        function(err) {
-          if (err) {
-            console.error('Error inserting order:', err);
-            db.run('ROLLBACK');
-            return res.status(500).json({ error: err.message });
-          }
-
-          const orderId = this.lastID;
-          console.log('Order inserted with ID:', orderId);
-
-          // Insert order items
-          let itemsInserted = 0;
-          const totalItems = items.length;
-          let hasError = false;
-
-          console.log('Processing', totalItems, 'order items...');
-          items.forEach((item, index) => {
-            console.log('Inserting item', index + 1, ':', item.product_id);
-            db.run(
-              `INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
-               VALUES (?, ?, ?, ?, ?)`,
-              [orderId, item.product_id, item.name, item.quantity, item.price],
-              (err) => {
-                if (err) {
-                  console.error('Error inserting order item:', err);
-                  hasError = true;
-                  db.run('ROLLBACK');
-                  if (!res.headersSent) {
-                    res.status(500).json({ error: 'Failed to create order items' });
-                  }
-                  return;
-                }
-
-                console.log('Item inserted, decrementing stock...');
-                // Decrement product stock
-                db.run(
-                  `UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?`,
-                  [item.quantity, item.product_id, item.quantity],
-                  (stockErr) => {
-                    if (stockErr) {
-                      console.error('Error decrementing stock:', stockErr.message);
-                      hasError = true;
-                      db.run('ROLLBACK');
-                      if (!res.headersSent) {
-                        res.status(500).json({ error: 'Insufficient stock or database error' });
-                      }
-                      return;
-                    }
-
-                    itemsInserted++;
-                    console.log('Items processed:', itemsInserted, '/', totalItems);
-                    
-                    // Check if all items are processed
-                    if (itemsInserted === totalItems && !hasError) {
-                      console.log('All items processed, committing transaction...');
-                      db.run('COMMIT', (commitErr) => {
-                        if (commitErr) {
-                          console.error('Error committing transaction:', commitErr);
-                          db.run('ROLLBACK');
-                          if (!res.headersSent) {
-                            res.status(500).json({ error: 'Failed to complete order' });
-                          }
-                          return;
-                        }
-                        
-                        console.log('Transaction committed, order created successfully:', orderId);
-                        res.status(201).json({ order_id: orderId, message: 'Order created successfully' });
-                      });
-                    }
-                  }
-                );
-              }
-            );
-          });
-        }
-      );
-    });
-  });
+// Get all orders
+router.get('/', async (req, res) => {
+  try {
+    const result = await db.query(`
+      SELECT o.*, u.name as user_name, u.email as user_email
+      FROM orders o
+      LEFT JOIN users u ON o.user_id = u.id
+      ORDER BY o.created_at DESC
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Get orders by user ID
-router.get('/user/:userId', (req, res) => {
-  const sql = `
-    SELECT o.*, 
-           GROUP_CONCAT(
-             json_object(
-               'product_id', oi.product_id,
-               'product_name', oi.product_name,
-               'quantity', oi.quantity,
-               'price', oi.price
-             )
-           ) as items
-    FROM orders o
-    LEFT JOIN order_items oi ON o.id = oi.order_id
-    WHERE o.user_id = ?
-    GROUP BY o.id
-    ORDER BY o.created_at DESC
-  `;
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const result = await db.query(`
+      SELECT o.*, 
+             JSON_AGG(
+               JSON_BUILD_OBJECT(
+                 'product_id', oi.product_id,
+                 'product_name', oi.product_name,
+                 'quantity', oi.quantity,
+                 'price', oi.price
+               )
+             ) as items
+      FROM orders o
+      LEFT JOIN order_items oi ON o.id = oi.order_id
+      WHERE o.user_id = $1
+      GROUP BY o.id
+      ORDER BY o.created_at DESC
+    `, [req.params.id]);
 
-  db.all(sql, [req.params.userId], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-
-    const orders = rows.map(row => ({
+    const orders = result.rows.map(row => ({
       ...row,
-      items: row.items ? JSON.parse(`[${row.items}]`) : []
+      items: row.items || []
     }));
 
     res.json(orders);
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Get single order by ID
-router.get('/:id', (req, res) => {
-  const sql = `
-    SELECT o.*, 
-           GROUP_CONCAT(
-             json_object(
-               'product_id', oi.product_id,
-               'product_name', oi.product_name,
-               'quantity', oi.quantity,
-               'price', oi.price
-             )
-           ) as items
-    FROM orders o
-    LEFT JOIN order_items oi ON o.id = oi.order_id
-    WHERE o.id = ?
-    GROUP BY o.id
-  `;
+router.get('/:id', async (req, res) => {
+  try {
+    const orderResult = await db.query(`
+      SELECT o.*, u.name as user_name, u.email as user_email
+      FROM orders o
+      LEFT JOIN users u ON o.user_id = u.id
+      WHERE o.id = $1
+    `, [req.params.id]);
 
-  db.get(sql, [req.params.id], (err, row) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-
-    if (!row) {
+    if (orderResult.rows.length === 0) {
       return res.status(404).json({ error: 'Order not found' });
     }
 
-    const order = {
-      ...row,
-      items: row.items ? JSON.parse(`[${row.items}]`) : []
-    };
+    const itemsResult = await db.query(`
+      SELECT * FROM order_items WHERE order_id = $1
+    `, [req.params.id]);
 
-    res.json(order);
-  });
+    res.json({
+      ...orderResult.rows[0],
+      items: itemsResult.rows
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Create new order
+router.post('/', async (req, res) => {
+  const {
+    user_id,
+    name,
+    phone,
+    address,
+    email,
+    payment_method,
+    total_amount,
+    items
+  } = req.body;
+
+  if (!name || !phone || !address || !payment_method || !total_amount || !items) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const client = await db.pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Insert order
+    const orderResult = await client.query(`
+      INSERT INTO orders (user_id, name, phone, address, email, payment_method, total_amount)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *
+    `, [user_id, name, phone, address, email, payment_method, total_amount]);
+
+    const orderId = orderResult.rows[0].id;
+
+    // Insert order items and update stock
+    for (const item of items) {
+      await client.query(`
+        INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
+        VALUES ($1, $2, $3, $4, $5)
+      `, [orderId, item.product_id, item.name, item.quantity, item.price]);
+
+      // Update product stock
+      await client.query(`
+        UPDATE products SET stock = stock - $1 WHERE id = $2 AND stock >= $1
+      `, [item.quantity, item.product_id]);
+    }
+
+    await client.query('COMMIT');
+    res.status(201).json({ order_id: orderId, message: 'Order created successfully' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: err.message });
+  } finally {
+    client.release();
+  }
 });
 
 // Update order status (admin only)
-router.patch('/:id/status', (req, res) => {
+router.patch('/:id/status', async (req, res) => {
   const { status } = req.body;
 
   if (!status) {
     return res.status(400).json({ error: 'Status is required' });
   }
 
-  // Get order details before updating
-  db.get('SELECT * FROM orders WHERE id = ?', [req.params.id], (err, order) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
+  try {
+    const result = await db.query(
+      'UPDATE orders SET status = $1 WHERE id = $2 RETURNING *',
+      [status, req.params.id]
+    );
 
-    if (!order) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Order not found' });
     }
 
-    db.run(
-      'UPDATE orders SET status = ? WHERE id = ?',
-      [status, req.params.id],
-      function(err) {
-        if (err) {
-          return res.status(500).json({ error: err.message });
-        }
-
-        if (this.changes === 0) {
-          return res.status(404).json({ error: 'Order not found' });
-        }
-
-        res.json({ message: 'Order status updated successfully' });
-      }
-    );
-  });
+    res.json({ message: 'Order status updated successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;

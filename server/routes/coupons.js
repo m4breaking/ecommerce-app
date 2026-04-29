@@ -3,58 +3,54 @@ const router = express.Router();
 const db = require('../database');
 
 // Get all coupons (admin)
-router.get('/', (req, res) => {
-  const sql = 'SELECT * FROM coupons ORDER BY created_at DESC';
-  db.all(sql, [], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.json(rows);
-  });
+router.get('/', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM coupons ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Get active coupons (public)
-router.get('/active', (req, res) => {
-  const sql = `
-    SELECT * FROM coupons 
-    WHERE is_active = 1 
-    AND (valid_from IS NULL OR valid_from <= datetime('now'))
-    AND (valid_until IS NULL OR valid_until >= datetime('now'))
-    AND (usage_limit IS NULL OR used_count < usage_limit)
-  `;
-  db.all(sql, [], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.json(rows);
-  });
+router.get('/active', async (req, res) => {
+  try {
+    const result = await db.query(`
+      SELECT * FROM coupons 
+      WHERE is_active = true 
+      AND (valid_from IS NULL OR valid_from <= NOW())
+      AND (valid_until IS NULL OR valid_until >= NOW())
+      AND (usage_limit IS NULL OR used_count < usage_limit)
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Validate coupon
-router.post('/validate', (req, res) => {
+router.post('/validate', async (req, res) => {
   const { code, total } = req.body;
 
   if (!code) {
     return res.status(400).json({ error: 'Coupon code is required' });
   }
 
-  const sql = `
-    SELECT * FROM coupons 
-    WHERE code = ? 
-    AND is_active = 1 
-    AND (valid_from IS NULL OR valid_from <= datetime('now'))
-    AND (valid_until IS NULL OR valid_until >= datetime('now'))
-    AND (usage_limit IS NULL OR used_count < usage_limit)
-  `;
+  try {
+    const result = await db.query(`
+      SELECT * FROM coupons 
+      WHERE code = $1 
+      AND is_active = true 
+      AND (valid_from IS NULL OR valid_from <= NOW())
+      AND (valid_until IS NULL OR valid_until >= NOW())
+      AND (usage_limit IS NULL OR used_count < usage_limit)
+    `, [code.toUpperCase()]);
 
-  db.get(sql, [code.toUpperCase()], (err, row) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-
-    if (!row) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Invalid or expired coupon' });
     }
+
+    const row = result.rows[0];
 
     if (total < row.min_purchase) {
       return res.status(400).json({ 
@@ -78,11 +74,13 @@ router.post('/validate', (req, res) => {
       discount_type: row.discount_type,
       discount_value: row.discount_value
     });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Create coupon (admin)
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { code, discount_type, discount_value, min_purchase, max_discount, usage_limit, valid_until } = req.body;
 
   if (!code || !discount_type || !discount_value) {
@@ -93,70 +91,66 @@ router.post('/', (req, res) => {
     return res.status(400).json({ error: 'discount_type must be percentage or fixed' });
   }
 
-  db.run(
-    `INSERT INTO coupons (code, discount_type, discount_value, min_purchase, max_discount, usage_limit, valid_until)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [code.toUpperCase(), discount_type, discount_value, min_purchase || 0, max_discount || null, usage_limit || null, valid_until || null],
-    function(err) {
-      if (err) {
-        if (err.message.includes('UNIQUE constraint')) {
-          return res.status(400).json({ error: 'Coupon code already exists' });
-        }
-        return res.status(500).json({ error: err.message });
-      }
-      res.status(201).json({ message: 'Coupon created successfully', id: this.lastID });
+  try {
+    const result = await db.query(
+      `INSERT INTO coupons (code, discount_type, discount_value, min_purchase, max_discount, usage_limit, valid_until)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [code.toUpperCase(), discount_type, discount_value, min_purchase || 0, max_discount || null, usage_limit || null, valid_until || null]
+    );
+    res.status(201).json({ message: 'Coupon created successfully', id: result.rows[0].id });
+  } catch (err) {
+    if (err.message.includes('duplicate key') || err.message.includes('unique constraint')) {
+      return res.status(400).json({ error: 'Coupon code already exists' });
     }
-  );
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Update coupon (admin)
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   const { code, discount_type, discount_value, min_purchase, max_discount, usage_limit, valid_until, is_active } = req.body;
 
-  db.run(
-    `UPDATE coupons 
-     SET code = ?, discount_type = ?, discount_value = ?, min_purchase = ?, max_discount = ?, 
-         usage_limit = ?, valid_until = ?, is_active = ?
-     WHERE id = ?`,
-    [code.toUpperCase(), discount_type, discount_value, min_purchase || 0, max_discount || null, 
-     usage_limit || null, valid_until || null, is_active !== undefined ? (is_active ? 1 : 0) : 1, req.params.id],
-    function(err) {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      if (this.changes === 0) {
-        return res.status(404).json({ error: 'Coupon not found' });
-      }
-      res.json({ message: 'Coupon updated successfully' });
+  try {
+    const result = await db.query(
+      `UPDATE coupons 
+       SET code = $1, discount_type = $2, discount_value = $3, min_purchase = $4, max_discount = $5, 
+           usage_limit = $6, valid_until = $7, is_active = $8
+       WHERE id = $9 RETURNING *`,
+      [code.toUpperCase(), discount_type, discount_value, min_purchase || 0, max_discount || null, 
+       usage_limit || null, valid_until || null, is_active !== undefined ? is_active : true, req.params.id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Coupon not found' });
     }
-  );
+    
+    res.json({ message: 'Coupon updated successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Delete coupon (admin)
-router.delete('/:id', (req, res) => {
-  db.run('DELETE FROM coupons WHERE id = ?', [req.params.id], function(err) {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    if (this.changes === 0) {
+router.delete('/:id', async (req, res) => {
+  try {
+    const result = await db.query('DELETE FROM coupons WHERE id = $1 RETURNING *', [req.params.id]);
+    if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Coupon not found' });
     }
     res.json({ message: 'Coupon deleted successfully' });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Increment coupon usage
-router.post('/:id/use', (req, res) => {
-  db.run(
-    'UPDATE coupons SET used_count = used_count + 1 WHERE id = ?',
-    [req.params.id],
-    function(err) {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      res.json({ message: 'Coupon usage recorded' });
-    }
-  );
+router.post('/:id/use', async (req, res) => {
+  try {
+    await db.query('UPDATE coupons SET used_count = used_count + 1 WHERE id = $1', [req.params.id]);
+    res.json({ message: 'Coupon usage recorded' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;

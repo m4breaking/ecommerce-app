@@ -3,77 +3,73 @@ const router = express.Router();
 const db = require('../database');
 
 // Get user's wishlist
-router.get('/user/:userId', (req, res) => {
-  const sql = `
-    SELECT w.*, p.name, p.description, p.price, p.image_url, p.stock, p.category
-    FROM wishlist w
-    JOIN products p ON w.product_id = p.id
-    WHERE w.user_id = ?
-    ORDER BY w.created_at DESC
-  `;
-
-  db.all(sql, [req.params.userId], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.json(rows);
-  });
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const result = await db.query(`
+      SELECT w.*, p.name, p.description, p.price, p.image_url, p.stock, p.category
+      FROM wishlist w
+      JOIN products p ON w.product_id = p.id
+      WHERE w.user_id = $1
+      ORDER BY w.created_at DESC
+    `, [req.params.userId]);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Add to wishlist
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { user_id, product_id } = req.body;
 
   if (!user_id || !product_id) {
     return res.status(400).json({ error: 'user_id and product_id are required' });
   }
 
-  db.run(
-    'INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)',
-    [user_id, product_id],
-    function(err) {
-      if (err) {
-        if (err.message.includes('UNIQUE constraint')) {
-          return res.status(400).json({ error: 'Product already in wishlist' });
-        }
-        return res.status(500).json({ error: err.message });
-      }
-      res.status(201).json({ message: 'Added to wishlist' });
+  try {
+    await db.query(
+      'INSERT INTO wishlist (user_id, product_id) VALUES ($1, $2)',
+      [user_id, product_id]
+    );
+    res.status(201).json({ message: 'Added to wishlist' });
+  } catch (err) {
+    if (err.message.includes('duplicate key') || err.message.includes('unique constraint')) {
+      return res.status(400).json({ error: 'Product already in wishlist' });
     }
-  );
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Remove from wishlist
-router.delete('/:id', (req, res) => {
-  db.run('DELETE FROM wishlist WHERE id = ?', [req.params.id], function(err) {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    if (this.changes === 0) {
+router.delete('/:id', async (req, res) => {
+  try {
+    const result = await db.query('DELETE FROM wishlist WHERE id = $1 RETURNING *', [req.params.id]);
+    if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Wishlist item not found' });
     }
     res.json({ message: 'Removed from wishlist' });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Check if product is in wishlist
-router.get('/check', (req, res) => {
+router.get('/check', async (req, res) => {
   const { user_id, product_id } = req.query;
 
   if (!user_id || !product_id) {
     return res.status(400).json({ error: 'user_id and product_id are required' });
   }
 
-  db.get(
-    'SELECT * FROM wishlist WHERE user_id = ? AND product_id = ?',
-    [user_id, product_id],
-    (err, row) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      res.json({ inWishlist: !!row });
-    }
-  );
+  try {
+    const result = await db.query(
+      'SELECT * FROM wishlist WHERE user_id = $1 AND product_id = $2',
+      [user_id, product_id]
+    );
+    res.json({ inWishlist: result.rows.length > 0 });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
