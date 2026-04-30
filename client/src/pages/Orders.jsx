@@ -23,7 +23,7 @@ const Orders = () => {
       setLoading(true);
       const response = await fetch(`${API_BASE}/orders/user/${user.id}`);
       const data = await response.json();
-      setOrders(data);
+      setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loading orders:', err);
     } finally {

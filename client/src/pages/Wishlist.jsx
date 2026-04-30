@@ -25,7 +25,7 @@ const Wishlist = () => {
       setLoading(true);
       const response = await fetch(`${API_BASE}/wishlist/user/${user.id}`);
       const data = await response.json();
-      setWishlist(data);
+      setWishlist(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loading wishlist:', err);
     } finally {

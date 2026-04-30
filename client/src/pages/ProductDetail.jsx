@@ -41,7 +41,8 @@ const ProductDetail = () => {
     fetch(`${API_BASE}/cart/${sessionId}`)
       .then(res => res.json())
       .then(items => {
-        const cartItem = items.find(item => item.product_id === parseInt(id));
+        const safeItems = Array.isArray(items) ? items : [];
+        const cartItem = safeItems.find(item => item.product_id === parseInt(id));
         if (cartItem) {
           setInCart(true);
           setCartItemId(cartItem.id);
@@ -61,7 +62,7 @@ const ProductDetail = () => {
       ]);
       const reviewsData = await reviewsRes.json();
       const avgData = await avgRes.json();
-      setReviews(reviewsData);
+      setReviews(Array.isArray(reviewsData) ? reviewsData : []);
       setAverageRating(avgData.average_rating);
       setReviewCount(avgData.review_count);
     } catch (err) {
