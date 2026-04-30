@@ -1,4 +1,6 @@
-const { Pool } = require('pg');
+const { Pool, types } = require('pg');
+
+types.setTypeParser(1700, (value) => (value === null ? null : parseFloat(value)));
 
 // Use PostgreSQL connection from environment variables
 const pool = new Pool({
