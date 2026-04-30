@@ -37,7 +37,7 @@ const Home = () => {
       
       fetch(url)
         .then(res => res.json())
-        .then(data => setProducts(data))
+        .then(data => setProducts(Array.isArray(data) ? data : []))
         .catch(err => console.error('Error loading products:', err));
     }
   };
@@ -58,6 +58,9 @@ const Home = () => {
   const loadCategories = async () => {
     try {
       const data = await productsAPI.getAll();
+      if (!Array.isArray(data)) {
+        throw new Error('Products API did not return an array');
+      }
       const uniqueCategories = [...new Set(data.map(p => p.category).filter(c => c))];
       setCategories(uniqueCategories);
     } catch (err) {
@@ -79,7 +82,7 @@ const Home = () => {
       
       const response = await fetch(url);
       const data = await response.json();
-      setProducts(data);
+      setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
       setError('Failed to load products');
     } finally {

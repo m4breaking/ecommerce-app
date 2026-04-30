@@ -23,7 +23,7 @@ const Checkout = () => {
   useEffect(() => {
     fetch(`${API_BASE}/cart/${sessionId}`)
       .then(res => res.json())
-      .then(data => setCartItems(data))
+      .then(data => setCartItems(Array.isArray(data) ? data : []))
       .catch(err => console.error('Error loading cart:', err));
   }, [sessionId]);
 

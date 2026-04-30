@@ -19,7 +19,7 @@ const Cart = () => {
       setLoading(true);
       const response = await fetch(`${API_BASE}/cart/${sessionId}`);
       const data = await response.json();
-      setCartItems(data);
+      setCartItems(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loading cart:', err);
     } finally {

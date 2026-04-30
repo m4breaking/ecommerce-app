@@ -27,7 +27,8 @@ export const CartProvider = ({ children }) => {
     fetch(`${API_BASE}/cart/${sessionId}`)
       .then(res => res.json())
       .then(items => {
-        const count = items.reduce((sum, item) => sum + item.quantity, 0);
+        const safeItems = Array.isArray(items) ? items : [];
+        const count = safeItems.reduce((sum, item) => sum + item.quantity, 0);
         setCartCount(count);
       })
       .catch(err => console.error('Error fetching cart:', err));

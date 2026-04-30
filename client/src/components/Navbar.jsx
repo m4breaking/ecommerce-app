@@ -42,7 +42,8 @@ const Navbar = () => {
     fetch(`${API_BASE}/products`)
       .then(res => res.json())
       .then(data => {
-        const uniqueCategories = [...new Set(data.map(p => p.category).filter(c => c))];
+        const safeData = Array.isArray(data) ? data : [];
+        const uniqueCategories = [...new Set(safeData.map(p => p.category).filter(c => c))];
         setCategories(uniqueCategories);
       })
       .catch(err => console.error('Error loading categories:', err));
