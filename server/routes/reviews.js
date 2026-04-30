@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database');
+const db = process.env.DATABASE_URL ? require('../database-pg') : require('../database');
 
 // Get reviews for a product
 router.get('/product/:productId', async (req, res) => {

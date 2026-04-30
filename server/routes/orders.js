@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database');
+const db = process.env.DATABASE_URL ? require('../database-pg') : require('../database');
 
 // Get analytics data
 router.get('/analytics', async (req, res) => {
@@ -78,7 +78,7 @@ router.get('/user/:userId', async (req, res) => {
       WHERE o.user_id = $1
       GROUP BY o.id
       ORDER BY o.created_at DESC
-    `, [req.params.id]);
+    `, [req.params.userId]);
 
     const orders = result.rows.map(row => ({
       ...row,

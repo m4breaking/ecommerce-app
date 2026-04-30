@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database');
+const db = process.env.DATABASE_URL ? require('../database-pg') : require('../database');
 
 // Get user's wishlist
 router.get('/user/:userId', async (req, res) => {

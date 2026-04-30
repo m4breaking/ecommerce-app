@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database');
+const db = process.env.DATABASE_URL ? require('../database-pg') : require('../database');
 
 // Get all active chat sessions (for admin) - must come before :sessionId
 router.get('/admin/sessions', async (req, res) => {
@@ -64,7 +64,7 @@ router.post('/', async (req, res) => {
         [session_id, 'customer']
       );
       
-      if (countResult.rows[0].count === 1) {
+      if (parseInt(countResult.rows[0].count, 10) === 1) {
         // First customer message - send automated reply
         try {
           await db.query(

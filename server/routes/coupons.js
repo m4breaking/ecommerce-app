@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database');
+const db = process.env.DATABASE_URL ? require('../database-pg') : require('../database');
 
 // Get all coupons (admin)
 router.get('/', async (req, res) => {
